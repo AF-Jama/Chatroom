@@ -1,0 +1,56 @@
+.main{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.inner-container{
+    flex: 1;
+    width: 100%;
+    max-width: 2000px;
+    margin: 0rem auto;
+    background-color: red;
+}
+
+
+
+
+
+
+
+@media screen and (min-width:768px){
+    .inner-container{
+        background-color: green;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .chats-container{
+        width: 35%;
+        background-color: blue;
+    }
+
+    .messages-container{
+        width: 65%;
+        background-color: red;
+    }
+}
+
+
+@media screen and (min-width:900px){
+    .inner-container{
+        background-color: green;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .chats-container{
+        width: 25%;
+        background-color: blue;
+    }
+
+    .messages-container{
+        width: 75%;
+        background-color: red;
+    }
+}

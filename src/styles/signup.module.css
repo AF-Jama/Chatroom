@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+
+.signup{
+    min-height: 100vh;
+    background-color: #25D366;
+    display: flex;
+    flex-direction: column;
+}
+
+.signup h3{
+    font-size: 1.8rem;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 100;
+}
+
+.signup>img{
+    margin: 1rem auto;
+}
+
+.sign-up-btn-container{
+    /* border: 2px solid red; */
+    padding: 1rem;  
+}
+
+.sign-up-btn-container>div{
+    margin: 0 auto;
+}
