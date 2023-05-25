@@ -6,7 +6,7 @@ const LoginPage = ()=>{
 
 
     return (
-        <div id="login-page-container" style={styles.sign}>
+        <div id="login-page-container">
             <h1>Login Page Container</h1>
         </div>
     )

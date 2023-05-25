@@ -1,17 +1,72 @@
 import React,{useState,useReducer,useEffect} from "react";
 import { useRouter } from "next/router";
+import Cookies from 'nookies';
 import db from "@/Config/firebase.config";
 import { collection,getDoc,getDocs,query,setDoc,addDoc,doc, where, updateDoc } from "@firebase/firestore";
 import useAuth from "@/customHooks/useAuth";
+import { adminSDK } from "@/Config/firebaseAdmin";
 import styles from '../../styles/userInfo.module.css';
 import whatsappLogo from '../../assets/images/whatsapp-logo.svg';
 import Image from "next/image";
 
+const userRef = collection(db,'users'); // users collection reference
 
-const UserInfoForm = ()=>{
+function areAllValuesNotNull(obj) {
+    // method which verifies obj key values are not null
+    return Object.values(obj).every(value => value !== null || value!=='');
+}
 
-    const { state:{isAuthenticated},dataState:{ hasDetails } } = useAuth();
+export async function getServerSideProps(context) {
+    const cookies = Cookies.get(context); // returns cookie token 
+    console.log(123);
+    if (!cookies.token) {
+        context.res.writeHead(302, { Location: '/signup' }); // redirect to /chats endpoint if token evaluates to true 
+        context.res.end();
+    }
+
+    try {
+        const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
+        if (!decodedToken) {
+            context.res.writeHead(302, { Location: '/signup' }); // redirect to /chats endpoint if token evaluates to true 
+            context.res.end();
+        }
+     
+        // the user is authenticated!
+        console.log(decodedToken);
+        const { uid } = decodedToken; // destructure token object and returns uid (user id)
+        // const user = await adminSDK.auth().getUser(uid);
+        // console.log(user);
+        let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
+
+        let userDocument = await getDoc(userDocumentReference); // returns user document
+
+        if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
+
+
+        context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
+        context.res.end();
+
+
+      } catch (error) {
+        console.log("ERROR HERE")
+        console.log(error);
+        return {
+          props: {
+            user:"TEST"
+          },
+        };
+    }
+
+    
+} //
+
+
+const UserInfoForm = ({ user })=>{
+
+    const { state:{isAuthenticated,uid} } = useAuth();
     const router = useRouter();
+
+    console.log(uid);
 
     const userReducer = (state,action)=>{
         switch(action.type){
@@ -44,20 +99,23 @@ const UserInfoForm = ()=>{
         const userRef = collection(db,'users'); // users collection ref
 
         if(firstName && lastName && age && occupation){
-            const docQuery = query(userRef,where('email','==',authState.user.email)); // query
+            // const docQuery = query(userRef,where('email','==',authState.user.email)); // query
+            const docRef = doc(userRef,uid); // returns document reference based on user uid
 
-            const querySnapshot = await getDocs(docQuery); // returns document snapshot based on query
+            // const querySnapshot = await getDocs(docQuery); // returns document snapshot based on query
 
-            const docRef = doc(db,'users',querySnapshot.docs[0].id); // returns document ref based on returned docuement id
+            // const docRef = doc(db,'users',querySnapshot.docs[0].id); // returns document ref based on returned docuement id
             
-            console.log(querySnapshot.docs[0].id)
+            // console.log(querySnapshot.docs[0].id)
 
-            await updateDoc(docRef,{
+            await setDoc(docRef,{
                 first_name:firstName,
                 last_name:lastName,
                 age:age,
                 occupation:occupation
             })
+
+            router.push('/chats');
 
         }else{
             return;
@@ -65,23 +123,12 @@ const UserInfoForm = ()=>{
     }
 
 
-    if(!isAuthenticated){
-        router.push('/signup');
-        return null;
-    }
-
-    if(isAuthenticated){
-        router.push('/sign');
-        return null;   
-    }
-
-
-
 
     return (
         <div className={styles.main}>
             <Image src={whatsappLogo} width={100} height={100} alt="Logo"/>
             <h3>Create Your Account</h3>
+            <p>{user}</p>
             <div className={styles['form-container']}>
                 <form action="" className={styles['user-info-form']}>
                     <div className={styles['input-group']}>

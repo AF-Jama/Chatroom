@@ -1,19 +1,37 @@
 import React,{useState,useEffect,useReducer,useContext} from "react";
+import Cookies from 'nookies';
+import { setCookie, destroyCookie, parseCookies } from "nookies";
 import useAuth from "@/customHooks/useAuth";
 import { useRouter } from "next/router";
+import { Redirect } from "next";
 import db from "@/Config/firebase.config";
 import { collection,addDoc,getDoc,getDocs, setDoc,query,where, doc } from "@firebase/firestore";
+// import { adminSDK } from "@/Config/firebaseAdmin";
 import Image from "next/image";
 import whatsappLogo from '../../assets/images/whatsapp-logo.svg';
-import GoogleButton from 'react-google-button'
+import GoogleButton from 'react-google-button';
 import style from '../../styles/signup.module.css';
-import { GoogleAuthProvider, TwitterAuthProvider } from "@firebase/auth";
+import { GoogleAuthProvider, TwitterAuthProvider, signOut } from "@firebase/auth";
 import { getAdditionalUserInfo } from "@firebase/auth";
+import { redirect } from "next/dist/server/api-utils";
 
 
-const SignUpPageContainer = ()=>{
-    const { onProviderPopUpSignUp,onSignout,state:{isAuthenticated},dataState } = useAuth();
-    const { first_name,last_name,age,occupation,hasDetails } = dataState; // destructure data state
+export async function getServerSideProps(context) {
+ const cookies = Cookies.get(context); // returns cookie token 
+ console.log(123);
+ if (!cookies.token) {
+    return { props: {
+    } }; // returns null and stays on page
+ }
+
+ context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
+ context.res.end();
+}
+
+
+
+const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
+    const { onProviderPopUpSignUp,onSignout,state:{isAuthenticated} } = useAuth();
 
     const router = useRouter(); // router
 
@@ -22,7 +40,10 @@ const SignUpPageContainer = ()=>{
         try{
             let result = await onProviderPopUpSignUp(provider);
 
-            await createUserAccount(result); // create user account
+
+            window.location.href = "/chats"; // redirects to chats endpoint
+
+            // await createUserAccount(result); // create user account
 
         }catch(error){
             // triggered if error on try block
@@ -43,53 +64,20 @@ const SignUpPageContainer = ()=>{
         }
     }
 
-    const createUserAccount = async (result)=>{
-        // triggered if user does not exist in firebase db 
-        try{
-            const user = result.user;
+    return (
+        <div id="sign-up-page-container" className={style.signup}>
+            <Image src={whatsappLogo} width={100} height={100} alt="Logo"/> 
+            <h3>Sign In</h3>
 
-            console.log(user);
-
-            const userRef = collection(db,'users');
-
-            let emailQuery = query(userRef,where('email',"==",user.email)); // email query 
-
-            const data = await getDocs(emailQuery);
-
-            if(data.size>0) throw new Error("Email Already exists in firestore"); // data returned >0 signifies that email exists within persistant store db already
-
-            await addDoc(userRef,{
-                email:user.email
-            })
-            
-
-        }catch(error){
-            // triggered if error in try block
-            console.log(error);
-        }
-    }
-
-    if(isAuthenticated){
-        router.push('/createuser');
-    }
-    
-    if(!isAuthenticated){
-        return (
-            <div id="sign-up-page-container" className={style.signup}>
-                <Image src={whatsappLogo} width={100} height={100} alt="Logo"/> 
-                <h3>Sign In</h3>
-    
-                <div id="identity-providers-container" className={style['sign-up-btn-container']}>
-                    <GoogleButton onClick={onHandleGoogleSignIn}/>
-                </div>
+            <div id="identity-providers-container" className={style['sign-up-btn-container']}>
+                <GoogleButton onClick={onHandleGoogleSignIn}/>
+                <button onClick={onSignout}>LOGOUT</button>
+                {isLoggedIn?"TRUE":"FALSE"}
+                <p>{JSON.stringify(result2)}</p>
             </div>
-            
-            )
-            
-    }
-
-
-    // router.push('/createuser');
+        </div>
+        
+    )
 
 
 }

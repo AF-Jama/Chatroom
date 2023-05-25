@@ -1,7 +1,9 @@
 import React,{useState,useEffect,useReducer} from "react";
+import Cookies from 'nookies';
+import { setCookie, destroyCookie, parseCookies } from "nookies";
 import db from "@/Config/firebase.config";
 import { getDoc,doc,updateDoc, query, collection, where, getDocs } from "@firebase/firestore";
-import {GoogleAuthProvider,EmailAuthProvider,onAuthStateChanged,signOut,signInWithPopup,signInWithRedirect } from "@firebase/auth";
+import {GoogleAuthProvider,EmailAuthProvider,onAuthStateChanged,signOut,signInWithPopup,signInWithRedirect, onIdTokenChanged } from "@firebase/auth";
 import { auth } from "@/Config/firebase.config";
 import authContext from "./authContext";
 
@@ -18,27 +20,7 @@ const AuthContextProvider = ({ children })=>{
                     user:null,
                     isAuthenticated:null,
                     accessToken:null,
-                }
-        }
-    }
-
-    const AccountDataReducer = (state,action)=>{
-        switch(action.type){
-            case "UPDATE":
-                if(areAllValuesNotNull(action.payload)){
-                    return {...state,...action.payload,hasDetails:true};
-                }
-
-                return {...state,...action.payload,hasDetails:false};
-                
-
-            case "CLEAR":
-                return {
-                    first_name:'',
-                    last_name:'',
-                    age:null,
-                    occupation:null,
-                    hasDetails:false
+                    uid:null
                 }
         }
     }
@@ -47,18 +29,9 @@ const AuthContextProvider = ({ children })=>{
     const [state,dispatch] = useReducer(authReducer,{
         user:null,
         isAuthenticated:false,
-        accessToken:null
+        accessToken:null,
+        uid:null
     });
-
-    const [dataState,dataDispatch] = useReducer(AccountDataReducer,{
-        first_name:'',
-        last_name:'',
-        age:null,
-        occupation:null,
-        hasDetails:false
-    });
-    
-    // console.log(state);
 
     const onProviderPopUpSignUp = async (provider)=>{
         // on provider signup with popup
@@ -70,6 +43,7 @@ const AuthContextProvider = ({ children })=>{
     }
 
     const onSignout = ()=>{
+        console.log("SIGNOUT");
         signOut(auth);
     }
 
@@ -78,28 +52,24 @@ const AuthContextProvider = ({ children })=>{
         return Object.values(obj).every(value => value !== null || value!=='');
       }
 
-
-
     useEffect(()=>{
-        const unsubscribe = onAuthStateChanged(auth,(currentUser)=>{
+        const unsubscribe = onIdTokenChanged(auth, async (currentUser)=>{
             if(!currentUser){
+                // triggered if current user evaluates to false
+                console.log("ON AUTH OUT");
                 dispatch({type:"CLEAR"});
-                dataDispatch({type:"CLEAR"});
+                destroyCookie(null,'token');
+                // Cookies.destroy('token'); // removes token
                 return;
             }
-            // const userRef = collection(db,'users'); // user collection reference 
-            // const userQuery = query(userRef,where('email','==',currentUser.email)); // user query reference, which queries based on user email
-            // getDocs(userQuery)
-            // .then((snapshot)=>{
-            //     // console.log(snapshot.docs[0].data());
-            //     const { email,first_name,last_name,occupation } = snapshot.docs[0].data(); // destructure user account
-
-            //     dataDispatch({type:"UPDATE",payload:{...snapshot.docs[0].data()}}); // data dispatch
-            // })
-            // .catch(error=>console.log("Error on querying user account"));
-            // dispatch({type:"UPDATE",payload:{user:{displayName:currentUser.displayName,email:currentUser.email,emailVerified:currentUser.emailVerified},isAuthenticated:true,accessToken:currentUser.accessToken}})
-
-            dispatch({type:"UPDATE",payload:{user:{displayName:currentUser.displayName,email:currentUser.email,emailVerified:currentUser.emailVerified},isAuthenticated:true,accessToken:currentUser.accessToken}})
+            console.log("HEREE");
+            console.log(currentUser);
+            dispatch({type:"UPDATE",payload:{user:{displayName:currentUser.displayName,email:currentUser.email,emailVerified:currentUser.emailVerified}, uid:currentUser.uid,isAuthenticated:true,accessToken:currentUser.accessToken}});
+            const token = await currentUser.getIdToken(); // returns user token
+            setCookie(null,'token',token,{
+                path:'/'
+            });
+            // Cookies.get('token',token); // sets user token
 
         }) // returns unsubscribe method
 
@@ -108,13 +78,12 @@ const AuthContextProvider = ({ children })=>{
 
         return ()=>{
             unsubscribe();
-            dataDispatch({type:"CLEAR"});
         }
-    },[state,dataState]); // runs on initial render (on mount) and dependecy array change 
+    },[]); // runs on initial render (on mount) and dependecy array change 
 
 
     return (
-        <authContext.Provider value={{onProviderPopUpSignUp,onSignout,state,dataState}}>
+        <authContext.Provider value={{onProviderPopUpSignUp,onSignout,state}}>
             { children }
         </authContext.Provider>
     )
