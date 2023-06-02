@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useReducer} from "react";
-import styles from '../../styles/profile.module.css';
+import styles from '../../styles/pages/profile.module.css';
 import Cookies from 'nookies';
 import { setCookie } from "nookies";
 import { destroyCookie } from "nookies";

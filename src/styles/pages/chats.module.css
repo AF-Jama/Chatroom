@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap');
 
-.main{
+.main-container{
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -12,14 +12,18 @@
     display: flex;
     flex-direction: column;
     /* max-width: 2000px; */
-    margin: 0rem auto;
-    background-color: #ece5dd;
+    /* margin: 1rem auto; */
+    /* background-color: #ece5dd; */
+    /* background-color: red; */
 }
 
 .chats-container{
     /* flex: 1; */
     /* background-color: red; */
-    overflow-y: scroll;
+    flex: 0 0 auto; /* Sidebar doesn't grow or shrink */
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: calc(100vh - 50px); /* Set the desired height */
+    background-color: #f8f8f8;
 }
 
 .messages-container{
@@ -42,13 +46,13 @@
     /* border: 2px solid red; */
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     max-height: 30px;
     overflow-y: hidden;
 }
 
 .profile-actions>img{
-    margin: 0.3rem 0 0 0;
+    margin: 0.3rem 1rem 0 0;
 }
 
 .profile-actions:hover{
@@ -75,7 +79,6 @@
 
 
 
-
 @media screen and (min-width:768px){
     .inner-container{
         /* background-color: green; */
@@ -84,8 +87,8 @@
     }
 
     .chats-container{
+        /* flex: 0;     */
         width: 30%;
-        /* background-color: blue; */
     }
 
     .messages-container{

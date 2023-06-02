@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import useAuth from "@/customHooks/useAuth";
 import Image from "next/image";
 import unknownUser from '../../assets/images/unknown-user.svg';
-import styles from '../../styles/chats.module.css';
+import styles from '../../styles/pages/chats.module.css';
 
 const userRef = collection(db,'users'); // users collection reference
 
@@ -67,7 +67,7 @@ export async function getServerSideProps(context) {
 
 
 const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
-    const { isAuthenticated,hasDetails } = useAuth();
+    const { isAuthenticated,hasDetails,onSignout, state:{user} } = useAuth();
     const [messageText,setMessageText] = useState('');
     const router = useRouter();
 
@@ -94,13 +94,12 @@ const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
         <main className={styles.main}>
             <div className={styles['inner-container']}>
                 <div className={styles['chats-container']}>
-                        {[1,2,3,4,5,6,7,7,,8,8,8,8,8,8,8].map(element=>(
+                        {[1,2,3,4,5,6,7,7,4,5,6,7,7].map(element=>(
                             <MessageBar senderImage="TEST"/>
                         ))}
                 </div>
                 <div className={styles['messages-container']}>
                     <div id="user-messages-container" className={styles['user-messages-container']}>
-
                     </div>
                     <ChatBar onMessageChange={onMessageChange}/>
                 </div>
@@ -111,7 +110,8 @@ const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
                     <div id="profile-actions-container">
                         <div className="actions">Show Profile</div>
                         <div className="account-information">Account Information</div>
-                        <div className="actions">Logout</div>
+                        <div className="actions" onClick={onSignout}>Logout</div>
+                        <div>{user?.displayName}</div>
                     </div>
                 </div>
             </div>

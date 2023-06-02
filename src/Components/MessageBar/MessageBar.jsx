@@ -1,6 +1,6 @@
 import React,{useState,useEffect,useReducer} from "react";
 import unknownUser from '../../assets/images/unknown-user.png';
-import styles from '../../styles/componentStyles/messagebar.module.css';
+import styles from '../../styles/components/messagebar.module.css';
 
 
 const MessageBar = ({ senderImage, message })=>{

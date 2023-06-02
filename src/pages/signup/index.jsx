@@ -10,7 +10,7 @@ import { collection,addDoc,getDoc,getDocs, setDoc,query,where, doc } from "@fire
 import Image from "next/image";
 import whatsappLogo from '../../assets/images/whatsapp-logo.svg';
 import GoogleButton from 'react-google-button';
-import style from '../../styles/signup.module.css';
+import style from '../../styles/pages/signup.module.css';
 import { GoogleAuthProvider, TwitterAuthProvider, signOut } from "@firebase/auth";
 import { getAdditionalUserInfo } from "@firebase/auth";
 import { redirect } from "next/dist/server/api-utils";
@@ -40,6 +40,12 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
         try{
             let result = await onProviderPopUpSignUp(provider);
 
+            const token = await result.user.getIdToken(); // returns id token promise value
+
+            setCookie(null,'token',token,{
+                maxAge:"3600",
+                path:'/'
+            }) // sets id token
 
             window.location.href = "/chats"; // redirects to chats endpoint
 
@@ -71,9 +77,6 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
 
             <div id="identity-providers-container" className={style['sign-up-btn-container']}>
                 <GoogleButton onClick={onHandleGoogleSignIn}/>
-                <button onClick={onSignout}>LOGOUT</button>
-                {isLoggedIn?"TRUE":"FALSE"}
-                <p>{JSON.stringify(result2)}</p>
             </div>
         </div>
         

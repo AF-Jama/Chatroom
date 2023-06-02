@@ -5,7 +5,7 @@ import db from "@/Config/firebase.config";
 import { collection,getDoc,getDocs,query,setDoc,addDoc,doc, where, updateDoc } from "@firebase/firestore";
 import useAuth from "@/customHooks/useAuth";
 import { adminSDK } from "@/Config/firebaseAdmin";
-import styles from '../../styles/userInfo.module.css';
+import styles from '../../styles/pages/userInfo.module.css';
 import whatsappLogo from '../../assets/images/whatsapp-logo.svg';
 import Image from "next/image";
 

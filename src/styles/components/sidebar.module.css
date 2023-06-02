@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap');
+
+.side-bar-show{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+    width: 70%;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    padding: 1rem;
+    transition: 1s;
+}
+
+.side-bar-hide{
+    display: none;
+}
+
+.user-details{
+    font-family: 'Inter', sans-serif;
+}
+
+.side-bar-show>h2{
+    font-family: 'Inter', sans-serif;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media screen and (min-width:1000px){
+
+}

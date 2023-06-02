@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useReducer} from "react";
-import styles from '../../styles/componentStyles/chatbar.module.css';
+import styles from '../../styles/components/chatbar.module.css';
 
 const ChatBar = ({ onMessageChange })=>{
 

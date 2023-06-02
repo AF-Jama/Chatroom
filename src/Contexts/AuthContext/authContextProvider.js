@@ -4,11 +4,14 @@ import { setCookie, destroyCookie, parseCookies } from "nookies";
 import db from "@/Config/firebase.config";
 import { getDoc,doc,updateDoc, query, collection, where, getDocs } from "@firebase/firestore";
 import {GoogleAuthProvider,EmailAuthProvider,onAuthStateChanged,signOut,signInWithPopup,signInWithRedirect, onIdTokenChanged } from "@firebase/auth";
+import { useRouter } from "next/router";
 import { auth } from "@/Config/firebase.config";
 import authContext from "./authContext";
 
 
 const AuthContextProvider = ({ children })=>{
+
+    const router = useRouter();
 
     const authReducer = (state,action)=>{
         switch(action.type){
@@ -44,7 +47,9 @@ const AuthContextProvider = ({ children })=>{
 
     const onSignout = ()=>{
         console.log("SIGNOUT");
+        destroyCookie(null,'token');
         signOut(auth);
+        router.push('/signup');
     }
 
     function areAllValuesNotNull(obj) {
@@ -56,20 +61,11 @@ const AuthContextProvider = ({ children })=>{
         const unsubscribe = onIdTokenChanged(auth, async (currentUser)=>{
             if(!currentUser){
                 // triggered if current user evaluates to false
-                console.log("ON AUTH OUT");
                 dispatch({type:"CLEAR"});
-                destroyCookie(null,'token');
-                // Cookies.destroy('token'); // removes token
                 return;
             }
-            console.log("HEREE");
-            console.log(currentUser);
             dispatch({type:"UPDATE",payload:{user:{displayName:currentUser.displayName,email:currentUser.email,emailVerified:currentUser.emailVerified}, uid:currentUser.uid,isAuthenticated:true,accessToken:currentUser.accessToken}});
-            const token = await currentUser.getIdToken(); // returns user token
-            setCookie(null,'token',token,{
-                path:'/'
-            });
-            // Cookies.get('token',token); // sets user token
+
 
         }) // returns unsubscribe method
 
