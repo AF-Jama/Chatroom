@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useReducer} from "react";
-import { doc,getDoc,collection } from "@firebase/firestore";
+import { doc,getDoc,collection, onSnapshot } from "@firebase/firestore";
 import { adminSDK } from "@/Config/firebaseAdmin";
 import db from "@/Config/firebase.config";
 import Cookies from "nookies";
@@ -47,6 +47,7 @@ export async function getServerSideProps(context) {
           props: {
             isLoggedIn: true,
             test:"SUCCESFULLas",
+            uid: uid,
             decoded: decodedToken,
             messageData:{} // message data object
           },
@@ -61,9 +62,9 @@ export async function getServerSideProps(context) {
     
 } //
 
-const RequestsPage = ()=>{
+const RequestsPage = ({ uid })=>{
     const [menuState,setMenuState] = useState(false);
-
+    const [ friendRequests, setFriendRequests ] = useState([]); // set friend requests state
 
     const onButtonClick = (event)=>{
         event.preventDefault(); 
@@ -72,6 +73,26 @@ const RequestsPage = ()=>{
 
         setMenuState(!menuState);
     }
+
+    let userRef = collection(db,'users');;
+
+    let userDocumentReference = doc(userRef,uid); // returns user document reference
+
+    let requestSubCollection = collection(userDocumentReference,'requests');
+
+
+
+    onSnapshot(requestSubCollection,(snapshot)=>{
+        const requests = [];
+        snapshot.docs.forEach(element=>{
+            console.log(requests.push(element.data()));
+        })
+
+        setFriendRequests([...requests])
+    })
+
+
+    console.log(friendRequests);
 
 
 
@@ -87,11 +108,13 @@ const RequestsPage = ()=>{
                 <div id="requests-container" className={styles['requests-container']}>
                     <h3>Your Friend Requests</h3>
 
+                    {(friendRequests.length===0) && <p>No Friend Requests</p>}
+
                     <div className={styles['user-request-container']}>
                         {
-                            [1,2,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,,4,4,4,4].map((element,index)=>(
+                            friendRequests.map((element,index)=>(
                             <div className={styles['user-requests-container']}>
-                                <p className={global['p-tag']}>James Manning {index}</p>
+                                <p className={global['p-tag']}>{element.email} {index}</p>
 
                                 <div className={styles['request-btns-outer-container']}>
                                     <div className={styles['request-btn-container']}>

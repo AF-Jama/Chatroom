@@ -44,7 +44,6 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
 
             setCookie(null,'token',token,{
                 maxAge:"3600",
-                path:'/'
             }) // sets id token
 
             window.location.href = "/chats"; // redirects to chats endpoint

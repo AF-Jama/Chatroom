@@ -1,9 +1,10 @@
 import React,{useState,useEffect,useReducer} from "react";
 import Cookies from "nookies";
 import { adminSDK } from "@/Config/firebaseAdmin";
-import { doc,getDoc,collection, setDoc } from "@firebase/firestore";
+import { doc,getDoc,collection, setDoc,updateDoc,addDoc, query, where, onSnapshot } from "@firebase/firestore";
 import { fetchSignInMethodsForEmail } from "@firebase/auth";
 import db,{ auth } from "@/Config/firebase.config";
+import HasEmailBeenRequestedAlready, { getUserIdFromEmail } from "@/utils/utils";
 import Header from "@/Components/Header";
 import styles from '../../../styles/pages/add.module.css';
 import global from '../../../styles/global.module.css';
@@ -34,7 +35,7 @@ export async function getServerSideProps(context) {
      
         // the user is authenticated!
         console.log(decodedToken);
-        const { uid } = decodedToken; // destructure token object and returns uid (user id)
+        const { uid, email } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
         let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
@@ -49,6 +50,7 @@ export async function getServerSideProps(context) {
             isLoggedIn: true,
             test:"SUCCESFULLas",
             decoded: decodedToken,
+            uid:uid,
             messageData:{} // message data object
           },
         };
@@ -63,12 +65,19 @@ export async function getServerSideProps(context) {
 } //
 
 
-const AddPage = ()=>{
+const AddPage = ({ uid, email })=>{
     const [menuState,setMenuState] = useState(false); // set menu state
     const [requestInputState,setRequestInputState] = useState(false); // set request input state
     const [emailState,setEmailState] = useState(''); // set email state
     const [errorState,setErrorState] = useState('');
-    const { state:{ uid,user } } = useAuth();
+    const [numberOfRequests,setNumberOfRequests] = useState(0);
+    const { state:{ uid:uuuid,user } } = useAuth();
+
+    let userRef = collection(db,'users');;
+
+    let userDocumentReference = doc(userRef,uid); // returns user document reference
+
+    let requestSubCollection = collection(userDocumentReference,'requests');
 
 
     const onButtonClick = (event)=>{
@@ -105,29 +114,36 @@ const AddPage = ()=>{
                 return;
             }
 
-            console.log("HEREERR");
+            let userId = await getUserIdFromEmail(emailState); // returns user id
 
-            let userDocumentReference = doc(userRef,uid); // returns user document reference
+            let userDocumentReference = doc(userRef,userId); // returns user document reference
 
-            let requestDocumentCollection = collection(userDocumentReference,'requests')
+            let requestSubCollection = collection(userDocumentReference,'requests');
 
-            let requestDocumentReference = doc(requestDocumentCollection); 
+            await HasEmailBeenRequestedAlready(email,requestSubCollection);
 
-            await setDoc(requestDocumentReference,{
-                email:emailState,
-                requestTime: Date.now(),
-                requestState:false
-            }) // sets doc in request sub collection
+            await addDoc(requestSubCollection,{
+                email:email,
+                uid:uid,
+                state:"Pending"
+            })
+            
 
             setErrorState("Sent Request");
 
 
 
+
             console.log("SUBMITTED");
         }catch(error){
+            console.log(error);
             return;
         }
     }
+
+    onSnapshot(requestSubCollection,(snapshot)=>(
+        setNumberOfRequests(snapshot.docs.length)
+    ))
 
 
     useEffect(()=>{
@@ -137,6 +153,7 @@ const AddPage = ()=>{
                 setErrorState('');
             },3000)
         }
+
     },[errorState]) // runs on initial render (on mount) and on dependency array change
 
 
@@ -148,7 +165,7 @@ const AddPage = ()=>{
             <Header onButtonClick={onButtonClick}/>
 
             <main className={styles.main}>
-                <SideBar showState={menuState}/>
+                <SideBar showState={menuState} numberOfRequests={numberOfRequests}/>
 
                 <div className={styles['add-input-container']}>
                     <h1 className={global['p-tag']}>Add a Friend</h1>

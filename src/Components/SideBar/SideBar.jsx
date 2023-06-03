@@ -1,21 +1,20 @@
 import React,{useState,useEffect,useReducer} from "react";
+import db, { auth } from "@/Config/firebase.config";
+import { doc, onSnapshot,collection } from "@firebase/firestore";
 import Image from "next/image";
 import chatLogo from '../../assets/images/chat.svg';
 import useAuth from "@/customHooks/useAuth";
 import styles from '../../styles/components/sidebar.module.css';
 import global from '../../styles/global.module.css';
 
+const userRef = collection(db,'users');
 
-
-const SideBar = (props)=>{
-    const { state:{user} } = useAuth();
-
-
-
+const SideBar = ({ showState, numberOfRequests })=>{
+    const { state:{user}, uid } = useAuth();
 
 
     return (
-        <div id="side-bar-container" className={props.showState?styles['side-bar-show']:styles['side-bar-hide']}>
+        <div id="side-bar-container" className={showState?styles['side-bar-show']:styles['side-bar-hide']}>
 
             <Image src={chatLogo}/>
 
@@ -23,7 +22,7 @@ const SideBar = (props)=>{
 
             <div id="overview-actions">
                 <a href="/chats/add" style={{textDecoration:"none",color:"black"}}><p className={global['p-tag']}>Add Friend</p></a>
-                <a href="/chats/requests" style={{textDecoration:"none",color:"black"}}><p className={global['p-tag']}>Friend Requests</p></a>
+                <a href="/chats/requests" style={{textDecoration:"none",color:"black"}}><p className={global['p-tag']}>Friend Requests <span style={{backgroundColor:"#4682B4",borderRadius:"50%",padding:"0.5rem"}}>{numberOfRequests}</span></p></a>
             </div>
 
             <div id="user-account-information-container" className={styles['user-account-container']}>

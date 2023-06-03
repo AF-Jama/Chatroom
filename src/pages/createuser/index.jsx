@@ -63,7 +63,7 @@ export async function getServerSideProps(context) {
 
 const UserInfoForm = ({ user })=>{
 
-    const { state:{isAuthenticated,uid} } = useAuth();
+    const { state:{isAuthenticated,uid,user:u} } = useAuth();
     const router = useRouter();
 
     console.log(uid);
@@ -112,7 +112,8 @@ const UserInfoForm = ({ user })=>{
                 first_name:firstName,
                 last_name:lastName,
                 age:age,
-                occupation:occupation
+                occupation:occupation,
+                email:u?.email
             })
 
             router.push('/chats');
