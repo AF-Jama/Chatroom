@@ -4,19 +4,23 @@ import { doc, getDoc,setDoc,addDoc,query,getDocs } from "@firebase/firestore";
 
 
 
-const HasEmailBeenRequestedAlready = async (email,reqCol)=>{
+const HasEmailBeenRequestedOnceAlready = async (senderEmail,reqRecieverCol,reqSenderCol,recieverEmail)=>{
     // method triggered to query if user has already requested email already, returns bool
     try{
-        const q = query(reqCol, where('email','==',email)); // query of request sub collection
+        const q = query(reqRecieverCol, where('email','==',senderEmail)); // query of request sub collection
+        const q1 = query(reqSenderCol,where('email','==',recieverEmail)); // opposite query run on request sender
 
         const querySnapshot = await getDocs(q);
+        const querySnapshot1 = await getDocs(q1); // returns documents on sender request sub collection
 
-        if(querySnapshot.size===0) return false; // returns true if query snapshot exists method evaluates to true
+        if(querySnapshot.size!==0) throw new Error("You have requested this user already");
 
-        throw new Error("Email does already exist within request sub collection");
+        if(querySnapshot1.size!==0) throw new Error("The user you are requesting has already sent you a request");
+
+        return false;
 
     }catch(error){
-        return Promise.reject(new Error("true"));
+        return Promise.reject(error);
     }
 }
 
@@ -43,8 +47,29 @@ const getUserIdFromEmail = async (email)=>{
 }
 
 
+const areUsersFriends = async (uid1,uid2)=>{
+    const friendCol = collection(db,'friends'); // returns reference to root level friends collection
 
-export default HasEmailBeenRequestedAlready;
+    try{
+        let q = query(friendCol,where('friend1','==',uid1),where('friend2','==',uid2));
+        let q1 = query(friendCol,where('friend1','==',uid2),where('friend2','==',uid1));
+
+        let querySnapshot = await getDocs(q); // return docs based on query
+        let querySnapshot1 = await getDocs(q1); // return docs based on query
+
+        if((querySnapshot.size!==0) || (querySnapshot1.size!==0)) throw new Error("You are friends already"); // snapshot array size returning 0, means query has not been matched
+
+        if((querySnapshot.size===0) && (querySnapshot1.size===0)) return false; // returns true, signifying query has matched a document
+
+    }catch(error){
+        return Promise.reject(error);
+    }
+}
+
+
+
+export default HasEmailBeenRequestedOnceAlready;
 export {
-    getUserIdFromEmail
+    getUserIdFromEmail,
+    areUsersFriends
 }

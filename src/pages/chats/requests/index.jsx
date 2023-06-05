@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useReducer} from "react";
-import { doc,getDoc,collection, onSnapshot } from "@firebase/firestore";
+import { doc,getDoc,collection, onSnapshot, deleteDoc, addDoc } from "@firebase/firestore";
 import { adminSDK } from "@/Config/firebaseAdmin";
 import db from "@/Config/firebase.config";
 import Cookies from "nookies";
@@ -65,6 +65,16 @@ export async function getServerSideProps(context) {
 const RequestsPage = ({ uid })=>{
     const [menuState,setMenuState] = useState(false);
     const [ friendRequests, setFriendRequests ] = useState([]); // set friend requests state
+    const [numberOfRequests,setNumberOfRequests] = useState(0);
+
+    let userRef = collection(db,'users');;
+
+    let userDocumentReference = doc(userRef,uid); // returns user document reference
+
+    let requestSubCollection = collection(userDocumentReference,'requests');
+
+    const friendshipCollection = collection(db,'friends'); // creating root level friends collection
+
 
     const onButtonClick = (event)=>{
         event.preventDefault(); 
@@ -74,18 +84,34 @@ const RequestsPage = ({ uid })=>{
         setMenuState(!menuState);
     }
 
-    let userRef = collection(db,'users');;
+    const onAcceptClick = async (event,requesterUuid,id)=>{
+        // on click, friend request is "accepted" and friendship added to a friend collection
+        event.preventDefault();
 
-    let userDocumentReference = doc(userRef,uid); // returns user document reference
+        await addDoc(friendshipCollection,{
+            friend1:uid, // friend 1 (current user)
+            friend2: requesterUuid // friend 2 (requester)
+        }) // add doc to friendship collection
 
-    let requestSubCollection = collection(userDocumentReference,'requests');
+        await deleteDoc(doc(requestSubCollection,id)) // removes request doc from request collection
+
+    }
+
+    const onDeclineClick = async (event,id)=>{
+        event.preventDefault();
+
+        await deleteDoc(doc(requestSubCollection,id))
+
+    }
+
 
 
 
     onSnapshot(requestSubCollection,(snapshot)=>{
+        setNumberOfRequests(snapshot.docs.length);
         const requests = [];
         snapshot.docs.forEach(element=>{
-            console.log(requests.push(element.data()));
+            requests.push({...element.data(),id:element.id});
         })
 
         setFriendRequests([...requests])
@@ -103,7 +129,7 @@ const RequestsPage = ({ uid })=>{
             <Header onButtonClick={onButtonClick}/>
 
             <main className={styles['requests-main-page']}>
-                <SideBar showState={menuState}/>
+                <SideBar showState={menuState} numberOfRequests={numberOfRequests}/>
 
                 <div id="requests-container" className={styles['requests-container']}>
                     <h3>Your Friend Requests</h3>
@@ -114,14 +140,14 @@ const RequestsPage = ({ uid })=>{
                         {
                             friendRequests.map((element,index)=>(
                             <div className={styles['user-requests-container']}>
-                                <p className={global['p-tag']}>{element.email} {index}</p>
+                                <p className={global['p-tag']}>{element.email}</p>
 
                                 <div className={styles['request-btns-outer-container']}>
                                     <div className={styles['request-btn-container']}>
-                                        <button>✓</button>
+                                        <button onClick={(event)=>onAcceptClick(event,element.uid,element.id)}>✓</button>
                                     </div>
                                     <div className={styles['request-btn-container']}>
-                                        <button>☓</button>
+                                        <button onClick={(event)=>onDeclineClick(event,element.id)}>☓</button>
                                     </div>
                                 </div>
                             </div>

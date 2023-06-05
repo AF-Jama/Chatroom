@@ -4,7 +4,7 @@ import { adminSDK } from "@/Config/firebaseAdmin";
 import { doc,getDoc,collection, setDoc,updateDoc,addDoc, query, where, onSnapshot } from "@firebase/firestore";
 import { fetchSignInMethodsForEmail } from "@firebase/auth";
 import db,{ auth } from "@/Config/firebase.config";
-import HasEmailBeenRequestedAlready, { getUserIdFromEmail } from "@/utils/utils";
+import HasEmailBeenRequestedOnceAlready, { getUserIdFromEmail, areUsersFriends } from "@/utils/utils";
 import Header from "@/Components/Header";
 import styles from '../../../styles/pages/add.module.css';
 import global from '../../../styles/global.module.css';
@@ -75,10 +75,9 @@ const AddPage = ({ uid, email })=>{
 
     let userRef = collection(db,'users');;
 
-    let userDocumentReference = doc(userRef,uid); // returns user document reference
+    let userSenderDocumentReference = doc(userRef,uid); // returns user document reference
 
-    let requestSubCollection = collection(userDocumentReference,'requests');
-
+    let requestSenderSubCollection = collection(userSenderDocumentReference,'requests');
 
     const onButtonClick = (event)=>{
         event.preventDefault(); 
@@ -116,13 +115,16 @@ const AddPage = ({ uid, email })=>{
 
             let userId = await getUserIdFromEmail(emailState); // returns user id
 
-            let userDocumentReference = doc(userRef,userId); // returns user document reference
+            let userRecieverDocumentReference = doc(userRef,userId); // returns user document reference
 
-            let requestSubCollection = collection(userDocumentReference,'requests');
+            let requestRecieverSubCollection = collection(userRecieverDocumentReference,'requests');
 
-            await HasEmailBeenRequestedAlready(email,requestSubCollection);
+            
+            await HasEmailBeenRequestedOnceAlready(email,requestRecieverSubCollection,requestSenderSubCollection,emailState);
+            
+            await areUsersFriends(userId,uid);
 
-            await addDoc(requestSubCollection,{
+            await addDoc(requestRecieverSubCollection,{
                 email:email,
                 uid:uid,
                 state:"Pending"
@@ -137,11 +139,12 @@ const AddPage = ({ uid, email })=>{
             console.log("SUBMITTED");
         }catch(error){
             console.log(error);
+            setErrorState(error.message);
             return;
         }
     }
 
-    onSnapshot(requestSubCollection,(snapshot)=>(
+    onSnapshot(requestSenderSubCollection,(snapshot)=>(
         setNumberOfRequests(snapshot.docs.length)
     ))
 
