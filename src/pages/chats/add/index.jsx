@@ -4,7 +4,7 @@ import { adminSDK } from "@/Config/firebaseAdmin";
 import { doc,getDoc,collection, setDoc,updateDoc,addDoc, query, where, onSnapshot } from "@firebase/firestore";
 import { fetchSignInMethodsForEmail } from "@firebase/auth";
 import db,{ auth } from "@/Config/firebase.config";
-import HasEmailBeenRequestedOnceAlready, { getUserIdFromEmail, areUsersFriends } from "@/utils/utils";
+import HasEmailBeenRequestedOnceAlready, { getUserIdFromEmail, areUsersFriends, showFriendUid } from "@/utils/utils";
 import Header from "@/Components/Header";
 import styles from '../../../styles/pages/add.module.css';
 import global from '../../../styles/global.module.css';
@@ -51,6 +51,7 @@ export async function getServerSideProps(context) {
             test:"SUCCESFULLas",
             decoded: decodedToken,
             uid:uid,
+            email:email,
             messageData:{} // message data object
           },
         };
@@ -70,8 +71,8 @@ const AddPage = ({ uid, email })=>{
     const [requestInputState,setRequestInputState] = useState(false); // set request input state
     const [emailState,setEmailState] = useState(''); // set email state
     const [errorState,setErrorState] = useState('');
-    const [numberOfRequests,setNumberOfRequests] = useState(0);
-    const { state:{ uid:uuuid,user } } = useAuth();
+    const [numberOfRequests,setNumberOfRequests] = useState(0);  
+    const { state:{ user } } = useAuth();
 
     let userRef = collection(db,'users');;
 
@@ -144,9 +145,17 @@ const AddPage = ({ uid, email })=>{
         }
     }
 
-    onSnapshot(requestSenderSubCollection,(snapshot)=>(
-        setNumberOfRequests(snapshot.docs.length)
-    ))
+    console.log("DATA IS:")
+    console.log(data);
+
+    useEffect(()=>{
+        console.log("HERE")
+        const unsubscribe = onSnapshot(requestSenderSubCollection,(snapshot)=>(
+            setNumberOfRequests(snapshot.docs.length)
+        ))
+
+        return ()=>unsubscribe();
+    },[])
 
 
     useEffect(()=>{
@@ -161,14 +170,12 @@ const AddPage = ({ uid, email })=>{
 
 
 
-
-
     return (
         <div id="add-page-container" className={styles['add-page']}>
             <Header onButtonClick={onButtonClick}/>
 
             <main className={styles.main}>
-                <SideBar showState={menuState} numberOfRequests={numberOfRequests}/>
+                <SideBar showState={menuState} numberOfRequests={numberOfRequests} uid={uid} email={email}/>
 
                 <div className={styles['add-input-container']}>
                     <h1 className={global['p-tag']}>Add a Friend</h1>

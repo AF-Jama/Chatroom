@@ -4,6 +4,8 @@ import { adminSDK } from "@/Config/firebaseAdmin";
 import db from "@/Config/firebase.config";
 import Cookies from "nookies";
 import Header from "@/Components/Header";
+import { showFriendUid } from "@/utils/utils";
+import useFriendsSnapshot from "@/Contexts/useFriendsSnapshot";
 import styles from '../../../styles/pages/requests.module.css';
 import global from '../../../styles/global.module.css';
 import SideBar from "@/Components/SideBar/SideBar";
@@ -33,7 +35,7 @@ export async function getServerSideProps(context) {
      
         // the user is authenticated!
         console.log(decodedToken);
-        const { uid } = decodedToken; // destructure token object and returns uid (user id)
+        const { uid, email } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
         let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
@@ -48,6 +50,7 @@ export async function getServerSideProps(context) {
             isLoggedIn: true,
             test:"SUCCESFULLas",
             uid: uid,
+            email:email,
             decoded: decodedToken,
             messageData:{} // message data object
           },
@@ -62,7 +65,7 @@ export async function getServerSideProps(context) {
     
 } //
 
-const RequestsPage = ({ uid })=>{
+const RequestsPage = ({ uid, email })=>{
     const [menuState,setMenuState] = useState(false);
     const [ friendRequests, setFriendRequests ] = useState([]); // set friend requests state
     const [numberOfRequests,setNumberOfRequests] = useState(0);
@@ -107,20 +110,21 @@ const RequestsPage = ({ uid })=>{
 
 
 
-    onSnapshot(requestSubCollection,(snapshot)=>{
-        setNumberOfRequests(snapshot.docs.length);
-        const requests = [];
-        snapshot.docs.forEach(element=>{
-            requests.push({...element.data(),id:element.id});
+    useEffect(()=>{
+
+        const unsubscribe = onSnapshot(requestSubCollection,(snapshot)=>{
+            setNumberOfRequests(snapshot.docs.length);
+            const requests = [];
+            snapshot.docs.forEach(element=>{
+                requests.push({...element.data(),id:element.id});
+            })
+    
+            setFriendRequests([...requests])
         })
 
-        setFriendRequests([...requests])
-    })
 
-
-    console.log(friendRequests);
-
-
+        return ()=>unsubscribe();
+    },[])
 
 
 
@@ -129,12 +133,12 @@ const RequestsPage = ({ uid })=>{
             <Header onButtonClick={onButtonClick}/>
 
             <main className={styles['requests-main-page']}>
-                <SideBar showState={menuState} numberOfRequests={numberOfRequests}/>
+                <SideBar showState={menuState} numberOfRequests={numberOfRequests} uid={uid} email={email}/>
 
                 <div id="requests-container" className={styles['requests-container']}>
                     <h3>Your Friend Requests</h3>
 
-                    {(friendRequests.length===0) && <p>No Friend Requests</p>}
+                    {(friendRequests.length===0) && <p className={global['p-tag']} >No Friend Requests</p>}
 
                     <div className={styles['user-request-container']}>
                         {

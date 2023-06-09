@@ -20,10 +20,15 @@
 .chats-container{
     /* flex: 1; */
     /* background-color: red; */
-    flex: 0 0 auto; /* Sidebar doesn't grow or shrink */
+    /* flex: 0 0 auto; Sidebar doesn't grow or shrink */
     overflow-y: auto; /* Enable vertical scrolling */
-    height: calc(100vh - 50px); /* Set the desired height */
+    height: calc(100vh - 30px); /* Set the desired height */
+    /* border: 2px solid red; */
     background-color: #f8f8f8;
+}
+
+.chats-container::-webkit-scrollbar{
+    display: none;
 }
 
 .messages-container{

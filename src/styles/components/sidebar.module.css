@@ -7,7 +7,7 @@
     background-color: #fff;
     width: 70%;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    padding: 1rem;
+    padding: 1.5rem;
     transition: 1s;
 }
 
@@ -21,6 +21,49 @@
 
 .side-bar-show>h2{
     font-family: 'Inter', sans-serif;
+}
+
+.friends-container{
+    max-height: 200px;
+    /* border: 2px solid red; */
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+.friends-container>p{
+    font-family: 'Inter', sans-serif;
+}
+
+.friends-container>a{
+    font-family: 'Inter', sans-serif;
+}
+
+.friends-container::-webkit-scrollbar{
+    display: none;
+}
+
+.friends-container>p:hover{
+    color: blue;
+    background-color: #f0eded;
+    transition: 1s;
+}
+
+.overview-actions>a>p:hover{
+    color: blue;
+    background-color: #f0eded;
+    transition: 1s;
+}
+
+.overview-actions>a:first-child>p::before{
+    content: url('../../assets/images/add-user.svg');
+    vertical-align: middle;
+    margin: 0 0.5rem 0 0;
+}
+
+.overview-actions>a:nth-child(2)>p::before{
+    content: url('../../assets/images/user.svg');
+    vertical-align: middle;
+    margin: 0 0.5rem 0 -5px;
 }
 
 

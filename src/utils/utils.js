@@ -59,7 +59,7 @@ const areUsersFriends = async (uid1,uid2)=>{
 
         if((querySnapshot.size!==0) || (querySnapshot1.size!==0)) throw new Error("You are friends already"); // snapshot array size returning 0, means query has not been matched
 
-        if((querySnapshot.size===0) && (querySnapshot1.size===0)) return false; // returns true, signifying query has matched a document
+        return false; // returns false, signifying query has not matched a document
 
     }catch(error){
         return Promise.reject(error);
@@ -67,9 +67,52 @@ const areUsersFriends = async (uid1,uid2)=>{
 }
 
 
+const showNumberOfFriends = async (uid)=>{
+    const friendsCol = collection(db,'friends'); // returns reference to root level friends collection
+
+    try{
+        const q = query(friendsCol,where('friend1','==',uid)); // query root level friends collection on the condition friend1 evaluates to uid value
+        const q1 = query(friendsCol,where('friend2','==',uid)); // query root level friends collection on the condition friend2 evaluates to uid value
+
+        const querySnapshot = await getDocs(q); // return docs based on query
+        const querySnapshot1 = await getDocs(q1); // return docs based on query
+
+        if((querySnapshot.size===0) && (querySnapshot1.size===0)) throw new Error("You have no friends on this account");
+
+        // if(querySnapshot.size!==0){
+        //     return querySnapshot.size;
+        // }
+
+        // if(querySnapshot1.size!==0){
+        //     return querySnapshot1.size;
+        // }
+
+        return querySnapshot.size + querySnapshot1.size; // returns total number of friends by accumalating document array sizes
+
+    
+    }catch(error){
+        return Promise.reject(0);
+    }
+
+}
+
+
+const showFriendUid = (uid,obj)=>{
+    // method returns uid of friend, method takes uid and friend obj
+    
+    let friendUid = Object.values(obj).filter(val=>val!==uid); // returns uid of opposite user in array
+
+    friendUid = friendUid[0];
+
+    return friendUid;
+}
+
+
 
 export default HasEmailBeenRequestedOnceAlready;
 export {
     getUserIdFromEmail,
-    areUsersFriends
+    areUsersFriends,
+    showNumberOfFriends,
+    showFriendUid
 }

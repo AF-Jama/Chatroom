@@ -42,9 +42,7 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
 
             const token = await result.user.getIdToken(); // returns id token promise value
 
-            setCookie(null,'token',token,{
-                maxAge:"3600",
-            }) // sets id token
+            setCookie(null,'token',token) // sets id token
 
             window.location.href = "/chats"; // redirects to chats endpoint
 

@@ -33,35 +33,41 @@ export async function getServerSideProps(context) {
      
         // the user is authenticated!
         console.log(decodedToken);
-        const { uid } = decodedToken; // destructure token object and returns uid (user id)
+        const { uid, email } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
         let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
 
         let userDocument = await getDoc(userDocumentReference); // returns user document
 
-        if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
+        if(!areAllValuesNotNull(userDocument.data())){
+            console.log("ERROR HERE")
+            console.log(error);
+            return {
+              props: {
+                user:"TEST",
+                email:email
+              },
+            };
 
-
-        context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
-        context.res.end();
-
-
-      } catch (error) {
-        console.log("ERROR HERE")
-        console.log(error);
-        return {
-          props: {
-            user:"TEST"
-          },
         };
+
+
+        throw new Error("User does have account");
+
+
+        
+        
+    } catch (error) {
+          context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
+          context.res.end();
     }
 
     
 } //
 
 
-const UserInfoForm = ({ user })=>{
+const UserInfoForm = ({ user, email })=>{
 
     const { state:{isAuthenticated,uid,user:u} } = useAuth();
     const router = useRouter();
@@ -113,7 +119,7 @@ const UserInfoForm = ({ user })=>{
                 last_name:lastName,
                 age:age,
                 occupation:occupation,
-                email:u?.email
+                email:email
             })
 
             router.push('/chats');
