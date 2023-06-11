@@ -28,7 +28,7 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
     
                 let res = await getDoc(friendDocRef);
     
-                friends.push({...res.data(),id:res.id});
+                friends.push({...res.data(),id:docs.id});
 
             }
 
@@ -50,7 +50,7 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
 
             <div id="friends-container" className={styles['friends-container']}>
                 {data.map(element=>(
-                    <a href="" style={{textDecoration:"none",color:"black"}}><p>{element.first_name} {element.last_name}</p></a>
+                    <a href={`/chats/${element.id}`} style={{textDecoration:"none",color:"black"}}><p>{element.first_name} {element.last_name}</p></a>
                 ))}
             </div>
 

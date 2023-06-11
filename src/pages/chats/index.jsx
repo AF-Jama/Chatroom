@@ -94,7 +94,7 @@ const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
         <main className={styles.main}>
             <div className={styles['inner-container']}>
                 <div className={styles['chats-container']}>
-                        {[1,2,3,4,5,6,7,7,4,5,6,7,7].map(element=>(
+                        {[1,2,3].map(element=>(
                             <MessageBar senderImage="TEST"/>
                         ))}
                 </div>

@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Epilogue&display=swap');
+
+.chat-container{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* background-color: red; */
+}
+
+.inner-container{
+    flex: 1;
+}
+
+.user-messages-container{
+    height: calc(100vh - 75px);
+    overflow-y: scroll;
+}
+
+.message-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.user-messages-container>p{
+    color: #000;
+    font-size: 1.2rem;
+    font-family: 'Epilogue', sans-serif;
+}

@@ -99,12 +99,17 @@ const showNumberOfFriends = async (uid)=>{
 
 const showFriendUid = (uid,obj)=>{
     // method returns uid of friend, method takes uid and friend obj
+    try{
+
+        let friendUid = Object.values(obj).filter(val=>val!==uid); // returns uid of opposite user in array
+
+        friendUid = friendUid[0];
     
-    let friendUid = Object.values(obj).filter(val=>val!==uid); // returns uid of opposite user in array
+        return friendUid;
 
-    friendUid = friendUid[0];
-
-    return friendUid;
+    }catch(error){
+        return null; // returns null on triggered error
+    }
 }
 
 
