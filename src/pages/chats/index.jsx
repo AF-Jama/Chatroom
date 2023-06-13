@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MessageBar from "@/Components/MessageBar";
 import ChatBar from "@/Components/ChatBar";
 import Cookies from "nookies";
 import db from "@/Config/firebase.config";
-import { getDoc,doc,updateDoc, query, collection, where, getDocs } from "@firebase/firestore";
+import { getDoc,doc,updateDoc, query, collection, where, getDocs, onSnapshot,orderBy } from "@firebase/firestore";
 import { adminSDK } from "@/Config/firebaseAdmin";
 import { useRouter } from "next/router";
 import useAuth from "@/customHooks/useAuth";
 import Image from "next/image";
 import unknownUser from '../../assets/images/unknown-user.svg';
 import styles from '../../styles/pages/chats.module.css';
+import { showFriends } from "@/utils/utils";
 
 const userRef = collection(db,'users'); // users collection reference
 
@@ -46,12 +47,41 @@ export async function getServerSideProps(context) {
 
         if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
 
+        // const friendColRef = collection(db,'friends'); // reference to friends collection
+
+        const friendsDocs = await showFriends(uid); // returns friends id within friend collection
+
+        let chatData = [];
+
+        for(const friendDoc of friendsDocs){
+            const friendsDocRef = doc(db,'friends',friendDoc.id); // returns reference to document in friend collection
+            const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+            // let res = await getDocs(chatCol)
+
+            // // res.docs.forEach((element)=>{
+            // // })
+
+            // console.log(res.docs[0].data());
+
+            let q = query(chatCol,orderBy('timestamp','desc')); 
+
+            let res = await getDocs(q);
+
+            chatData.push({...res.docs[0].data(),id:friendDoc.id});
+
+
+        }
+
+        
+
      
         return {
           props: {
+            uid:uid,
             isLoggedIn: true,
             test:"SUCCESFULLas",
             decoded: decodedToken,
+            chatData:chatData,
             messageData:{} // message data object
           },
         };
@@ -66,10 +96,11 @@ export async function getServerSideProps(context) {
 } //
 
 
-const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
+const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
     const { isAuthenticated,hasDetails,onSignout, state:{user} } = useAuth();
     const [messageText,setMessageText] = useState('');
     const router = useRouter();
+    const [chatDataState,setChatData] = useState(chatData); // set chat data state
 
 
 
@@ -94,15 +125,17 @@ const ChatDashboard = ({ isLoggedIn, test, decoded })=>{
         <main className={styles.main}>
             <div className={styles['inner-container']}>
                 <div className={styles['chats-container']}>
-                        {[1,2,3].map(element=>(
-                            <MessageBar senderImage="TEST"/>
+                        {chatDataState.map(element=>(
+                            <a style={{textDecoration:"none",color:"#000"}} href={`/chats/${element.id}`}>
+                                <MessageBar senderImage="" message={element.message}/>
+                            </a>
                         ))}
                 </div>
-                <div className={styles['messages-container']}>
+                {/* <div className={styles['messages-container']}>
                     <div id="user-messages-container" className={styles['user-messages-container']}>
                     </div>
                     <ChatBar onMessageChange={onMessageChange}/>
-                </div>
+                </div> */}
 
                 <div id="profile" className={styles['profile-actions']}>
                     <Image src={unknownUser}/>

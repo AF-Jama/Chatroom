@@ -3,7 +3,7 @@ import unknownUser from '../../assets/images/unknown-user.png';
 import styles from '../../styles/components/messagebar.module.css';
 
 
-const MessageBar = ({ senderImage, message })=>{
+const MessageBar = ({ senderImage, message,friendName })=>{
 
 
     const onImageError = (event)=>{
@@ -16,10 +16,11 @@ const MessageBar = ({ senderImage, message })=>{
 
     return (
         <div id="message-bar-container" className={styles['message-bar']}>
+            <span>James Manning</span>
             {/* <img src={senderImage} alt="" width={50} height={50} onError={onImageError} /> */}
 
             <div className="inner-message-container">
-                <p className={styles['message-text']}>Hey this is a new message...</p>
+                <p className={styles['message-text']}>{message}</p>
             </div>
         </div>
     )

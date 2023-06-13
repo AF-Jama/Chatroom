@@ -97,6 +97,35 @@ const showNumberOfFriends = async (uid)=>{
 }
 
 
+const showFriends = async (uid)=>{
+    const friendsCol = collection(db,'friends'); // returns reference to root level friends collection
+
+    try{
+        const q = query(friendsCol,where('friend1','==',uid)); // query root level friends collection on the condition friend1 evaluates to uid value
+        const q1 = query(friendsCol,where('friend2','==',uid)); // query root level friends collection on the condition friend2 evaluates to uid value
+
+        const querySnapshot = await getDocs(q); // return docs based on query
+        const querySnapshot1 = await getDocs(q1); // return docs based on query
+
+        if((querySnapshot.size===0) && (querySnapshot1.size===0)) throw new Error("You have no friends on this account");
+
+        console.log(querySnapshot1.docs);
+
+        // querySnapshot.docs.forEach(element=>(
+        //     console.log(element.data())
+        // ))
+
+        // console.log(querySnapshot.docs[0].data())
+
+        return [...querySnapshot.docs,...querySnapshot1.docs].map(element=>({id:element.id,...element.data()}));     // returns friends document refeference by spreading documents within array and mapping documents which returns array
+
+    
+    }catch(error){
+        return [];
+    }
+
+}
+
 const showFriendUid = (uid,obj)=>{
     // method returns uid of friend, method takes uid and friend obj
     try{
@@ -119,5 +148,6 @@ export {
     getUserIdFromEmail,
     areUsersFriends,
     showNumberOfFriends,
-    showFriendUid
+    showFriendUid,
+    showFriends
 }
