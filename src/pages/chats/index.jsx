@@ -10,7 +10,7 @@ import useAuth from "@/customHooks/useAuth";
 import Image from "next/image";
 import unknownUser from '../../assets/images/unknown-user.svg';
 import styles from '../../styles/pages/chats.module.css';
-import { showFriends } from "@/utils/utils";
+import { showFriendUid, showFriends } from "@/utils/utils";
 
 const userRef = collection(db,'users'); // users collection reference
 
@@ -56,6 +56,11 @@ export async function getServerSideProps(context) {
         for(const friendDoc of friendsDocs){
             const friendsDocRef = doc(db,'friends',friendDoc.id); // returns reference to document in friend collection
             const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+            const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
+            const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
+
+            const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
+            const { first_name,last_name } = friendUserData.data(); // destuctures user document data
             // let res = await getDocs(chatCol)
 
             // // res.docs.forEach((element)=>{
@@ -67,7 +72,7 @@ export async function getServerSideProps(context) {
 
             let res = await getDocs(q);
 
-            chatData.push({...res.docs[0].data(),id:friendDoc.id});
+            chatData.push({...res.docs[0].data(),id:friendDoc.id,name:`${first_name} ${last_name}`});
 
 
         }
@@ -120,6 +125,45 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
     }
 
 
+    useEffect(()=>{
+        const unsubscribeArray = [];
+        let friendsData = [];
+
+        const chatCallData = async ()=>{
+            const friendsDocs = await showFriends(uid); // returns friends id within friend collection
+
+            friendsDocs.forEach(async element=>{
+                const friendsDocRef = doc(db,'friends',element.id); // returns reference to document in friend collection
+                const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+
+                let q = query(chatCol,orderBy('timestamp','desc')); // queries chat collection  
+
+                const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
+                const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
+
+                const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
+                const { first_name,last_name } = friendUserData.data(); // destuctures user document data
+
+                const unsubscribe = onSnapshot(q,(snapshot)=>{
+                    friendsData = [];
+                    friendsData.push({...snapshot.docs[0].data(),id:element.id,name:`${first_name} ${last_name}`});
+                    setChatData([...friendsData]);
+                })
+
+                unsubscribeArray.push(unsubscribe);
+            })
+            
+        }
+
+        chatCallData();
+
+        return ()=>{
+            unsubscribeArray.forEach(unsubscribe=>unsubscribe());
+        }
+
+    },[]); // side effect runs on initial render (on mount)
+
+
 
     return (
         <main className={styles.main}>
@@ -127,7 +171,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                 <div className={styles['chats-container']}>
                         {chatDataState.map(element=>(
                             <a style={{textDecoration:"none",color:"#000"}} href={`/chats/${element.id}`}>
-                                <MessageBar senderImage="" message={element.message}/>
+                                <MessageBar senderImage="" message={element.message} friendName={element.name}/>
                             </a>
                         ))}
                 </div>

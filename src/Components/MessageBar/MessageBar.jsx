@@ -16,7 +16,7 @@ const MessageBar = ({ senderImage, message,friendName })=>{
 
     return (
         <div id="message-bar-container" className={styles['message-bar']}>
-            <span>James Manning</span>
+            <span>{friendName}</span>
             {/* <img src={senderImage} alt="" width={50} height={50} onError={onImageError} /> */}
 
             <div className="inner-message-container">

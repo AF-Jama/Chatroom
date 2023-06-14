@@ -132,6 +132,7 @@ const Chat = ({ chatData, chatId, uid })=>{
         });
 
         inputContainerRef.current.value="";
+        setMessage("");
 
 
     }
