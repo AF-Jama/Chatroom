@@ -25,14 +25,15 @@ export async function getServerSideProps(context) {
     const cookies = Cookies.get(context); // returns cookie token 
     console.log(123);
     if (!cookies.token) {
-        context.res.writeHead(302, { Location: '/signup' }); // redirect to /chats endpoint if token evaluates to true 
+        context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
         context.res.end();
     }
 
     try {
         const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
         if (!decodedToken) {
-            context.res.writeHead(302, { Location: '/signup' }); // redirect to /chats endpoint if token evaluates to true 
+            Cookies.destroy(context);
+            context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }
      
