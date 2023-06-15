@@ -66,6 +66,12 @@
     margin: 0 0.5rem 0 -5px;
 }
 
+.overview-actions>a:nth-child(3)>p::before{
+    content: url('../../assets/images/all.svg');
+    vertical-align: middle;
+    margin: 0 0.5rem 0 -5px;
+}
+
 
 
 

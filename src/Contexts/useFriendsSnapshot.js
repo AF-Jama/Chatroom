@@ -28,7 +28,7 @@ const useFriendsSnapshot = (uid)=>{
 
         return ()=>unsubscribe();
 
-    },[]); // runs on initial render (on mount)
+    },[uid]); // runs on initial render (on mount)
 
     return { data };
 }

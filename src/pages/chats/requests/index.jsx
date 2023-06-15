@@ -125,7 +125,7 @@ const RequestsPage = ({ uid, email })=>{
 
 
         return ()=>unsubscribe();
-    },[])
+    },[requestSubCollection])
 
 
 
@@ -144,7 +144,7 @@ const RequestsPage = ({ uid, email })=>{
                     <div className={styles['user-request-container']}>
                         {
                             friendRequests.map((element,index)=>(
-                            <div className={styles['user-requests-container']}>
+                            <div key={element.id} className={styles['user-requests-container']}>
                                 <p className={global['p-tag']}>{element.email}</p>
 
                                 <div className={styles['request-btns-outer-container']}>

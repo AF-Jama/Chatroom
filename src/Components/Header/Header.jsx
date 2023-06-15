@@ -12,7 +12,7 @@ const Header = (props)=>{
     return (
         <header className={styles.header}>
             <div className="inner-header-container">
-                <Image src={chatLogo}/>
+                <Image src={chatLogo} alt="Image Logo"/>
 
                 <div id="button">
                     <button onClick={props.onButtonClick} style={{display:"flex",flexDirection:"row", justifyContent:"space-between",alignItems:"center",fontSize:"1.3rem",backgroundColor:"black",color:"#fff",border:"0",outline:"0",borderRadius:"5px",margin:"0.1rem"}}>

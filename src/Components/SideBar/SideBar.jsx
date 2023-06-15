@@ -2,6 +2,7 @@ import React,{useState,useEffect,useReducer} from "react";
 import db, { auth } from "@/Config/firebase.config";
 import { doc, onSnapshot,collection, getDoc } from "@firebase/firestore";
 import Image from "next/image";
+import Link from "next/link";
 import chatLogo from '../../assets/images/chat.svg';
 import useAuth from "@/customHooks/useAuth";
 import { showFriendUid } from "@/utils/utils";
@@ -38,25 +39,36 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
 
 
         return ()=>unsubscribe();
-    },[])
+    },[friendsCol,uid])
 
 
     return (
         <div id="side-bar-container" className={showState?styles['side-bar-show']:styles['side-bar-hide']}>
 
-            <Image src={chatLogo}/>
+            <Image src={chatLogo} alt="Logo" />
 
             <h2>Overview</h2>
 
             <div id="friends-container" className={styles['friends-container']}>
                 {data.map(element=>(
-                    <a href={`/chats/${element.id}`} style={{textDecoration:"none",color:"black"}}><p>{element.first_name} {element.last_name}</p></a>
+                    <Link key={element.id} href={`/chats/${element.id}`} style={{textDecoration:"none",color:"black"}}>
+                        <p>{element.first_name} {element.last_name}</p>
+                    </Link>
                 ))}
             </div>
 
             <div id="overview-actions" className={styles['overview-actions']}>
-                <a href="/chats/add" style={{textDecoration:"none",color:"black"}}><p className={global['p-tag']}>Add Friend</p></a>
-                <a href="/chats/requests" style={{textDecoration:"none",color:"black"}}><p className={global['p-tag']}>Friend Requests {(numberOfRequests===0)?"":<span style={{backgroundColor:"#4682B4",borderRadius:"50%",padding:"0.5rem"}}>{(numberOfRequests)}</span>}</p></a>
+                <Link href="/chats/add" style={{textDecoration:"none",color:"black"}}>
+                    <p className={global['p-tag']}>Add Friend</p>
+                </Link>
+
+                <Link href="/chats/requests" style={{textDecoration:"none",color:"black"}}>
+                    <p className={global['p-tag']}>Friend Requests {(numberOfRequests===0)?"":<span style={{backgroundColor:"#4682B4",borderRadius:"50%",padding:"0.5rem"}}>{(numberOfRequests)}</span>}</p>
+                </Link>
+
+                <Link href='/chats' style={{textDecoration:"none",color:"#000"}}>
+                    <p className={global['p-tag']}>All Chats</p>
+                </Link>
             </div>
 
             {/* <div id="user-account-information-container" className={styles['user-account-container']}>

@@ -170,7 +170,7 @@ const Chat = ({ chatData, chatId, uid })=>{
 
 
         return ()=>unsubscribe();
-    },[])
+    },[chatCol])
 
 
     return (
@@ -180,7 +180,7 @@ const Chat = ({ chatData, chatId, uid })=>{
                     <div id="user-messages-container" className={styles['user-messages-container']} ref={scrollMessageContainer}>
                         {(chatDataState.length===0) && <p>Add your first message</p>}
                         {chatDataState.map(element=>(
-                            <p style={(element.userId===uid)?{backgroundColor:"#218aff",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}:{backgroundColor:"#39ff5a",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}}>{element.message}</p>
+                            <p key={element.id} style={(element.userId===uid)?{backgroundColor:"#218aff",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}:{backgroundColor:"#39ff5a",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}}>{element.message}</p>
                         ))}
                     </div>
                     <ChatBar onMessageChange={onMessageChange} inputContainerRef={inputContainerRef} onSubmit={onSubmit}/>

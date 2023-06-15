@@ -52,7 +52,7 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
 
         }catch(error){
             // triggered if error on try block
-            console.log(error)
+            console.log(`ERROR IS ${error}`);
             return;
         }
     }

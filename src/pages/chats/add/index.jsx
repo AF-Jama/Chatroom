@@ -146,8 +146,8 @@ const AddPage = ({ uid, email })=>{
         }
     }
 
-    console.log("DATA IS:")
-    console.log(data);
+    // console.log("DATA IS:")
+    // console.log(data);
 
     useEffect(()=>{
         console.log("HERE")
@@ -156,7 +156,7 @@ const AddPage = ({ uid, email })=>{
         ))
 
         return ()=>unsubscribe();
-    },[])
+    },[requestSenderSubCollection])
 
 
     useEffect(()=>{

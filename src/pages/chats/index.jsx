@@ -8,6 +8,7 @@ import { adminSDK } from "@/Config/firebaseAdmin";
 import { useRouter } from "next/router";
 import useAuth from "@/customHooks/useAuth";
 import Image from "next/image";
+import Link from "next/link";
 import unknownUser from '../../assets/images/unknown-user.svg';
 import styles from '../../styles/pages/chats.module.css';
 import { showFriendUid, showFriends } from "@/utils/utils";
@@ -128,7 +129,6 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
 
     useEffect(()=>{
         const unsubscribeArray = [];
-        let friendsData = [];
 
         const chatCallData = async ()=>{
             const friendsDocs = await showFriends(uid); // returns friends id within friend collection
@@ -146,7 +146,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                 const { first_name,last_name } = friendUserData.data(); // destuctures user document data
 
                 const unsubscribe = onSnapshot(q,(snapshot)=>{
-                    friendsData = [];
+                    let friendsData = [];
                     friendsData.push({...snapshot.docs[0].data(),id:element.id,name:`${first_name} ${last_name}`});
                     setChatData([...friendsData]);
                 })
@@ -162,7 +162,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
             unsubscribeArray.forEach(unsubscribe=>unsubscribe());
         }
 
-    },[]); // side effect runs on initial render (on mount)
+    },[uid]); // side effect runs on initial render (on mount) and on dependecy array change
 
 
 
@@ -171,7 +171,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
             <div className={styles['inner-container']}>
                 <div className={styles['chats-container']}>
                         {chatDataState.map(element=>(
-                            <a style={{textDecoration:"none",color:"#000"}} href={`/chats/${element.id}`}>
+                            <a key={element.id} style={{textDecoration:"none",color:"#000"}} href={`/chats/${element.id}`}>
                                 <MessageBar senderImage="" message={element.message} friendName={element.name}/>
                             </a>
                         ))}
@@ -183,11 +183,13 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                 </div> */}
 
                 <div id="profile" className={styles['profile-actions']}>
-                    <Image src={unknownUser}/>
+                    <Image src={unknownUser} alt="user"/>
 
-                    <div id="profile-actions-container">
+                    <div id="profile-actions-container" style={{padding:"0 1rem"}}>
                         <div className="actions">Show Profile</div>
-                        <div className="account-information">Account Information</div>
+                        <Link href='chats/requests' style={{textDecoration:"none",color:"#fff"}}>
+                            <div className="account-information">Account Information</div>
+                        </Link>
                         <div className="actions" onClick={onSignout}>Logout</div>
                         <div>{user?.displayName}</div>
                     </div>
