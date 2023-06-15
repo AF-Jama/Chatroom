@@ -170,7 +170,7 @@ const Chat = ({ chatData, chatId, uid })=>{
 
 
         return ()=>unsubscribe();
-    },[chatCol])
+    },[])
 
 
     return (

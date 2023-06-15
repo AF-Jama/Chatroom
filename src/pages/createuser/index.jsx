@@ -33,11 +33,13 @@ export async function getServerSideProps(context) {
         }
      
         // the user is authenticated!
-        console.log(decodedToken);
+        // console.log(decodedToken);
         const { uid, email } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
         let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
+
+        console.log("ERROR HIT");
 
         let userDocument = await getDoc(userDocumentReference); // returns user document
 

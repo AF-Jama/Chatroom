@@ -39,17 +39,23 @@ export async function getServerSideProps(context) {
         }
      
         // the user is authenticated!
-        console.log(decodedToken);
+        // console.log(decodedToken);
         const { uid } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
         let userDocumentReference = doc(userRef,uid); // returns user document reference based on user id
 
+        console.log("1");
+
         let userDocument = await getDoc(userDocumentReference); // returns user document
+
+        console.log("2");
 
         if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
 
         // const friendColRef = collection(db,'friends'); // reference to friends collection
+
+        console.log("3");
 
         const friendsDocs = await showFriends(uid); // returns friends id within friend collection
 

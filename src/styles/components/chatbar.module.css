@@ -9,7 +9,6 @@
 
 .chat-bar-input{
     flex: 10;
-    border: 2px solid black;
 }
 
 .chat-bar-input>input{
