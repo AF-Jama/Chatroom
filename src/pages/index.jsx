@@ -11,7 +11,7 @@ import Image from "next/image";
 import whatsappLogo from '../assets/images/whatsapp-logo.svg';
 import GoogleButton from 'react-google-button';
 import style from '../styles/pages/signup.module.css';
-import { GoogleAuthProvider, TwitterAuthProvider, signOut } from "@firebase/auth";
+import { GithubAuthProvider, GoogleAuthProvider, TwitterAuthProvider, signOut } from "@firebase/auth";
 import { getAdditionalUserInfo } from "@firebase/auth";
 import { redirect } from "next/dist/server/api-utils";
 

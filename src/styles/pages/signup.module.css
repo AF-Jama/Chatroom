@@ -26,3 +26,18 @@
 .sign-up-btn-container>div{
     margin: 0 auto;
 }
+
+.mobile-sign-up-container{
+    width: 95%;
+    margin: 0 auto;
+    max-width: 400px;
+    /* border: 2px solid red; */
+    padding: 1rem 0;
+}
+
+.mobile-sign-up-container>input{
+    width: 100%;
+    padding: 1rem 0 1rem 0.3rem;
+    border: 0;
+    outline: 0;
+}

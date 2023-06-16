@@ -43,27 +43,23 @@ export async function getServerSideProps(context) {
 
         let userDocument = await getDoc(userDocumentReference); // returns user document
 
-        if(!areAllValuesNotNull(userDocument.data())){
-            console.log("ERROR HERE")
-            console.log(error);
-            return {
-              props: {
-                user:"TEST",
-                email:email
-              },
-            };
-
-        };
+        if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
 
 
-        throw new Error("User does have account");
+        context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
+        context.res.end();
 
 
         
         
     } catch (error) {
-          context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
-          context.res.end();
+        console.log("ERROR HERE")
+        console.log(error);
+        return {
+          props: {
+            user:"TEST",
+          },
+        };
     }
 
     
@@ -138,7 +134,6 @@ const UserInfoForm = ({ user, email })=>{
         <div className={styles.main}>
             <Image src={whatsappLogo} width={100} height={100} alt="Logo"/>
             <h3>Create Your Account</h3>
-            <p>{user}</p>
             <div className={styles['form-container']}>
                 <form action="" className={styles['user-info-form']}>
                     <div className={styles['input-group']}>

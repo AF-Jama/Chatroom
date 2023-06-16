@@ -12,6 +12,8 @@ yarn dev
 pnpm dev
 ```
 
+Site: https://chat-room-lilac.vercel.app
+
 ## Pages
 
 ### Signup Page
