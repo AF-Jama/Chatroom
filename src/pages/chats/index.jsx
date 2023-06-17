@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import unknownUser from '../../assets/images/unknown-user.svg';
 import styles from '../../styles/pages/chats.module.css';
+import global from '../../styles/global.module.css';
 import { showFriendUid, showFriends } from "@/utils/utils";
 
 const userRef = collection(db,'users'); // users collection reference
@@ -40,6 +41,7 @@ export async function getServerSideProps(context) {
      
         // the user is authenticated!
         // console.log(decodedToken);
+        console.log("HERE");
         const { uid } = decodedToken; // destructure token object and returns uid (user id)
         // const user = await adminSDK.auth().getUser(uid);
         // console.log(user);
@@ -79,6 +81,8 @@ export async function getServerSideProps(context) {
 
         }
 
+        console.log("HERE");
+
         
 
      
@@ -88,7 +92,7 @@ export async function getServerSideProps(context) {
             isLoggedIn: true,
             test:"SUCCESFULLas",
             decoded: decodedToken,
-            chatData:chatData,
+            chatData:chatData.sort((a,b)=>b.timestamp - a.timestamp),
             messageData:{} // message data object
           },
         };
@@ -127,42 +131,58 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
     }
 
 
-    useEffect(()=>{
-        const unsubscribeArray = [];
+    // useEffect(()=>{
+    //     const unsubscribeArray = [];
 
-        const chatCallData = async ()=>{
-            const friendsDocs = await showFriends(uid); // returns friends id within friend collection
+    //     const chatCallData = async ()=>{
+    //         const friendsDocs = await showFriends(uid); // returns friends id within friend collection
+    //         for (const element of friendsDocs){
+    //             let friendsData = [];
+    //             const friendsDocRef = doc(db,'friends',element.id); // returns reference to document in friend collection
+    //             const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+                
+    //             let q = query(chatCol,orderBy('timestamp','desc')); // queries chat collection  
+                
+    //             const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
+    //             const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
 
-            friendsDocs.forEach(async element=>{
-                const friendsDocRef = doc(db,'friends',element.id); // returns reference to document in friend collection
-                const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+    //             if(!friendUid) continue;
+                
+    //             const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
+    //             const { first_name,last_name } = friendUserData.data(); // destuctures user document data
+                
+    //             const unsubscribe = onSnapshot(q,(snapshot)=>{
+    //                 const latestMessage = snapshot.docs[0]?.data(); // Get the latest message
+    //                 const existingIndex = friendsData.findIndex((chat) => chat.sender === friendUid);
+          
+    //                 if (existingIndex > -1) {
+    //                   // If there is an existing message from the same user, replace it with the latest message
+    //                   friendsData[existingIndex] = { ...latestMessage, id: element.id, name: `${first_name} ${last_name}` };
+    //                 } else {
+    //                   // If there is no existing message from the same user, add the latest message to the array
+    //                   friendsData.push({ ...latestMessage, id: element.id, name: `${first_name} ${last_name}` });
+    //                 }
+          
+    //                 setChatData([...chatData, ...friendsData].sort((a, b) => b.timestamp - a.timestamp));
+    //             })
 
-                let q = query(chatCol,orderBy('timestamp','desc')); // queries chat collection  
+    
+    //             unsubscribeArray.push(unsubscribe);
 
-                const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
-                const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
+    //         }
 
-                const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
-                const { first_name,last_name } = friendUserData.data(); // destuctures user document data
-
-                const unsubscribe = onSnapshot(q,(snapshot)=>{
-                    let friendsData = [];
-                    friendsData.push({...snapshot.docs[0].data(),id:element.id,name:`${first_name} ${last_name}`});
-                    setChatData([...friendsData]);
-                })
-
-                unsubscribeArray.push(unsubscribe);
-            })
+    //         // friendsDocs.forEach(async element=>{
+    //         // })
             
-        }
+    //     }
 
-        chatCallData();
+    //     chatCallData();
 
-        return ()=>{
-            unsubscribeArray.forEach(unsubscribe=>unsubscribe());
-        }
+    //     return ()=>{
+    //         unsubscribeArray.forEach(unsubscribe=>unsubscribe());
+    //     }
 
-    },[uid]); // side effect runs on initial render (on mount) and on dependecy array change
+    // },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
 
 
 
@@ -170,8 +190,9 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
         <main className={styles.main}>
             <div className={styles['inner-container']}>
                 <div className={styles['chats-container']}>
+                    {(chatDataState.length===0) && <p className={global['p-tag']} style={{fontSize:"1.3rem"}}>No Available Chats</p>}
                         {chatDataState.map(element=>(
-                            <a key={element.id} style={{textDecoration:"none",color:"#000"}} href={`/chats/${element.id}`}>
+                            <a key={element.id} style={{textDecoration:"none",color:"#000"}}     href={`/chats/${element.id}`}>
                                 <MessageBar senderImage="" message={element.message} friendName={element.name}/>
                             </a>
                         ))}

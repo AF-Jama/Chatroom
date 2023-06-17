@@ -25,6 +25,7 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
 
             for(const docs of snapshot.docs){
                 let friendUid = showFriendUid(uid,docs.data());
+
                 let friendDocRef = doc(db,'users',friendUid);
     
                 let res = await getDoc(friendDocRef);
@@ -39,7 +40,7 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
 
 
         return ()=>unsubscribe();
-    },[friendsCol,uid])
+    },[uid])
 
 
     return (

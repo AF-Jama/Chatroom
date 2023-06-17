@@ -49,7 +49,7 @@ const AuthContextProvider = ({ children })=>{
         console.log("SIGNOUT");
         destroyCookie(null,'token');
         signOut(auth);
-        router.push('/signup');
+        window.location.href = "/";
     }
 
     function areAllValuesNotNull(obj) {

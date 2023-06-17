@@ -43,23 +43,24 @@ export async function getServerSideProps(context) {
 
         let userDocument = await getDoc(userDocumentReference); // returns user document
 
-        if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
+        if((!userDocument.data()) || !areAllValuesNotNull(userDocument.data())){
+            console.log("SUCCEDFULL")
+            return {
+                props: {
+                    user:"TEST",
+                    email:email
+                },
+        }
+        
+        };   
 
-
+        
+        throw new Error("User does not have account or account data not up to date");
+            
+    } catch (error) {
+        
         context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
         context.res.end();
-
-
-        
-        
-    } catch (error) {
-        console.log("ERROR HERE")
-        console.log(error);
-        return {
-          props: {
-            user:"TEST",
-          },
-        };
     }
 
     
@@ -121,7 +122,7 @@ const UserInfoForm = ({ user, email })=>{
                 email:email
             })
 
-            router.push('/chats');
+            window.location.href = "/chats"
 
         }else{
             return;
