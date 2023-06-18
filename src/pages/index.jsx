@@ -46,7 +46,9 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
                 maxAge:"3600"
             }) // sets id token
 
-            window.location.href = "/chats"; // redirects to chats endpoint
+            if(Cookies.get('token') && window.location.href!=='/chast'){
+                window.location.href = "/chats";
+            } // redirects to chats endpoint
 
             // await createUserAccount(result); // create user account
 

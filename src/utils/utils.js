@@ -129,7 +129,7 @@ const showFriends = async (uid)=>{
 const showFriendUid = (uid,obj)=>{
     // method returns uid of friend, method takes uid and friend obj
     try{
-        // if(obj.values().indexOf(uid)===-1) throw Error("User not in friendship Document"); // triggers error if uid is not present in friend document
+        if(Object.values(obj).indexOf(uid)===-1) throw Error("User not in friendship Document"); // triggers error if uid is not present in friend document
         let friendUid = Object.values(obj).filter(val=>val!==uid); // returns uid of opposite user in array
 
         friendUid = friendUid[0];

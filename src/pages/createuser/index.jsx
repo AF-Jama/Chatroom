@@ -27,7 +27,7 @@ export async function getServerSideProps(context) {
     try {
         const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
         if (!decodedToken) {
-            Cookies.destroy(context);
+            Cookies.destroy("token");
             context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }

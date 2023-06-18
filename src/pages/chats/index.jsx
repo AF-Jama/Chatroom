@@ -27,6 +27,8 @@ export async function getServerSideProps(context) {
     const cookies = Cookies.get(context); // returns cookie token 
     console.log(123);
     if (!cookies.token) {
+        console.log("HIT3233");
+        console.log(!cookies.token);
         context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
         context.res.end();
     }
@@ -34,7 +36,7 @@ export async function getServerSideProps(context) {
     try {
         const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
         if (!decodedToken) {
-            Cookies.destroy(context);
+            Cookies.destroy('token');
             context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }
@@ -76,12 +78,17 @@ export async function getServerSideProps(context) {
 
             let res = await getDocs(q);
 
+            // if(!res.docs[0].data().message) continue;
+            if(res.empty) continue; // triggered if sub collection is empty
+
             chatData.push({...res.docs[0].data(),id:friendDoc.id,name:`${first_name} ${last_name}`});
 
 
         }
 
         console.log("HERE");
+        console.log(cookies);
+        console.log(cookies.token);
 
         
 
@@ -97,10 +104,8 @@ export async function getServerSideProps(context) {
           },
         };
       } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
-        context.res.end();
+          context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
+          context.res.end();
     }
 
     
@@ -131,58 +136,59 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
     }
 
 
-    // useEffect(()=>{
-    //     const unsubscribeArray = [];
+    useEffect(()=>{
+        const unsubscribeArray = [];
 
-    //     const chatCallData = async ()=>{
-    //         const friendsDocs = await showFriends(uid); // returns friends id within friend collection
-    //         for (const element of friendsDocs){
-    //             let friendsData = [];
-    //             const friendsDocRef = doc(db,'friends',element.id); // returns reference to document in friend collection
-    //             const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
+        const chatCallData = async ()=>{
+            const friendsDocs = await showFriends(uid); // returns friends id within friend collection
+            let friendsData = [];
+            for (const element of friendsDocs){
+                const friendsDocRef = doc(db,'friends',element.id); // returns reference to document in friend collection
+                const chatCol = collection(friendsDocRef,'chat'); // returns reference to chat sub collection
                 
-    //             let q = query(chatCol,orderBy('timestamp','desc')); // queries chat collection  
+                let q = query(chatCol,orderBy('timestamp','desc')); // queries chat collection  
                 
-    //             const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
-    //             const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
+                const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
+                const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
+                
+                if(!friendUid) continue;
+                
+                const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
+                const { first_name,last_name } = friendUserData.data(); // destuctures user document data
+                
+                const chatRes = await getDocs(q);
+                
+                if(chatRes.empty) continue;
+                
+                const unsubscribe = onSnapshot(q,(snapshot)=>{
+                    const set = new Set(); // set object which can store unique values
+                    // const { message } = snapshot.docs[0].data(); // returns latest message
+                    friendsData.push({...snapshot.docs[0].data(),id:element.id, name:`${first_name} ${last_name}`});
 
-    //             if(!friendUid) continue;
-                
-    //             const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
-    //             const { first_name,last_name } = friendUserData.data(); // destuctures user document data
-                
-    //             const unsubscribe = onSnapshot(q,(snapshot)=>{
-    //                 const latestMessage = snapshot.docs[0]?.data(); // Get the latest message
-    //                 const existingIndex = friendsData.findIndex((chat) => chat.sender === friendUid);
-          
-    //                 if (existingIndex > -1) {
-    //                   // If there is an existing message from the same user, replace it with the latest message
-    //                   friendsData[existingIndex] = { ...latestMessage, id: element.id, name: `${first_name} ${last_name}` };
-    //                 } else {
-    //                   // If there is no existing message from the same user, add the latest message to the array
-    //                   friendsData.push({ ...latestMessage, id: element.id, name: `${first_name} ${last_name}` });
-    //                 }
-          
-    //                 setChatData([...chatData, ...friendsData].sort((a, b) => b.timestamp - a.timestamp));
-    //             })
+                    setChatData([...chatData,...friendsData].sort((a,b)=>b.timestamp-a.timestamp).filter(value=>{
+                        if(set.has(value.name)) return; // triggered if name is already in set and return false object not added in returned array
+
+                        set.add(value.name); // triggered if name is not in set and object is added in returned array
+                        return value;
+                    }));
+
+
+                })
 
     
-    //             unsubscribeArray.push(unsubscribe);
+                unsubscribeArray.push(unsubscribe);
 
-    //         }
-
-    //         // friendsDocs.forEach(async element=>{
-    //         // })
+            }
             
-    //     }
+        }
 
-    //     chatCallData();
+        chatCallData();
 
-    //     return ()=>{
-    //         unsubscribeArray.forEach(unsubscribe=>unsubscribe());
-    //     }
+        return ()=>{
+            unsubscribeArray.forEach(unsubscribe=>unsubscribe());
+        }
 
-    // },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
+    },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
 
 
 
