@@ -37,5 +37,7 @@ next-env.d.ts
 /src/.env
 /src/Config/firebase.config.js
 /src/Config/service-account.json
+./src/Config/service-account.json
+
 
 .vercel
