@@ -109,7 +109,7 @@ const showFriends = async (uid)=>{
 
         if((querySnapshot.size===0) && (querySnapshot1.size===0)) throw new Error("You have no friends on this account");
 
-        console.log(querySnapshot1.docs);
+        // console.log(querySnapshot1.docs);
 
         // querySnapshot.docs.forEach(element=>(
         //     console.log(element.data())

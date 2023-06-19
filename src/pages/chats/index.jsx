@@ -148,13 +148,14 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
         setMessageText(event.target.value);
     }
 
-    const friendsCol = collection(db,'friends');
-
-
+    
+    
     useEffect(()=>{
         const unsubscribeArray = [];
-
+        const friendsCol = collection(db,'friends');
+        
         const chatCallData = async ()=>{
+            console.log(1);
             const friendsDocs = await showFriends(uid); // returns friends id within friend collection
             let friendsData = [];
             for (const element of friendsDocs){
@@ -219,7 +220,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
             unsubscribeArray.forEach(unsubscribe=>unsubscribe());
         }
 
-    },[friendsCol,uid]);    // side effect runs on initial render (on mount) and on dependecy array change
+    },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
 
 
 

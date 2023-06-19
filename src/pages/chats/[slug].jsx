@@ -112,7 +112,7 @@ const Chat = ({ chatData, chatId, uid })=>{
     const onMessageChange = (event)=>{
         event.preventDefault();
 
-        console.log(event.target.value);
+        // console.log(event.target.value);
         setMessage(event.target.value);
 
     }
@@ -170,7 +170,7 @@ const Chat = ({ chatData, chatId, uid })=>{
 
 
         return ()=>unsubscribe();
-    },[])
+    },[chatCol])
 
 
     return (
