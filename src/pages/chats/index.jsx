@@ -13,6 +13,7 @@ import unknownUser from '../../assets/images/unknown-user.svg';
 import styles from '../../styles/pages/chats.module.css';
 import global from '../../styles/global.module.css';
 import { showFriendUid, showFriends } from "@/utils/utils";
+import { FirebaseError } from "firebase/app";
 
 const userRef = collection(db,'users'); // users collection reference
 
@@ -24,8 +25,8 @@ function areAllValuesNotNull(obj) {
 
 
 export async function getServerSideProps(context) {
+    // console.log(context.req.cookies.remove());
     const cookies = Cookies.get(context); // returns cookie token 
-    console.log(123);
     if (!cookies.token) {
         console.log("HIT3233");
         console.log(!cookies.token);
@@ -104,8 +105,20 @@ export async function getServerSideProps(context) {
           },
         };
       } catch (error) {
-          context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
-          context.res.end();
+        //   context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
+        //   context.res.end();
+        if(error instanceof FirebaseError){
+            // triggered if error is instance of firebase error
+            Cookies.destroy(context,'token');
+            context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
+            context.res.end();
+            return;
+        }
+
+        if(error.message==="User does not have account or account data not up to date"){
+            context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
+            context.res.end();
+        }
     }
 
     
@@ -135,6 +148,8 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
         setMessageText(event.target.value);
     }
 
+    const friendsCol = collection(db,'friends');
+
 
     useEffect(()=>{
         const unsubscribeArray = [];
@@ -151,7 +166,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                 const friendRes = await getDoc(friendsDocRef); // returns friend document within collection
                 const friendUid = showFriendUid(uid,friendRes.data()); // returns friend uid within friend document
                 
-                if(!friendUid) continue;
+                // if(!friendUid) continue;
                 
                 const friendUserData = await getDoc(doc(db,'users',friendUid)); // returns user document within collection
                 const { first_name,last_name } = friendUserData.data(); // destuctures user document data
@@ -163,14 +178,30 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                 const unsubscribe = onSnapshot(q,(snapshot)=>{
                     const set = new Set(); // set object which can store unique values
                     // const { message } = snapshot.docs[0].data(); // returns latest message
-                    friendsData.push({...snapshot.docs[0].data(),id:element.id, name:`${first_name} ${last_name}`});
+                    const newChatData = { ...snapshot.docs[0].data(), id: element.id, name: `${first_name} ${last_name}` };
 
-                    setChatData([...chatData,...friendsData].sort((a,b)=>b.timestamp-a.timestamp).filter(value=>{
-                        if(set.has(value.name)) return; // triggered if name is already in set and return false object not added in returned array
+                    // const updatedArray = [...chatData,newChatData].filter(value=>{
+                    //     if(set.has(value.name)) return; // triggered if name is already in set and return false object not added in returned array
+    
+                    //     set.add(value.name); // triggered if name is not in set and object is added in returned array
+                    //     return value;
+                    // });
 
-                        set.add(value.name); // triggered if name is not in set and object is added in returned array
-                        return value;
-                    }));
+                    // updatedArray.sort((a,b)=>b.timestamp-a.timestamp);
+
+                    // setChatData(updatedArray);
+
+                    setChatData((prevChatData) => {
+                        const updatedChatData = [...prevChatData, newChatData];
+                        return updatedChatData
+                          .sort((a, b) => b.timestamp - a.timestamp) // sorts based on message timestamp
+                          .filter((value) => { // filters based on object name
+                            if (set.has(value.name)) return false; // triggered if name is already in set and return false object not added in returned array
+              
+                            set.add(value.name); // triggered if name is not in set and object is added in returned array
+                            return true;
+                          });
+                    });
 
 
                 })
@@ -188,7 +219,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
             unsubscribeArray.forEach(unsubscribe=>unsubscribe());
         }
 
-    },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
+    },[friendsCol,uid]);    // side effect runs on initial render (on mount) and on dependecy array change
 
 
 
