@@ -71,11 +71,16 @@
     color: #fff;
     border-radius: 5px;
     font-family: 'Inter', sans-serif;
+    padding: 1rem;
 }
 
 .profile-actions>div>div{
-    padding: 0.5rem;
+    /* padding: 0.5rem; */
     /* border: 2px solid red; */
+}
+
+.profile-actions>div>a{
+    /* padding: 0.5rem; */
 }
 
 .profile-actions>img:hover{

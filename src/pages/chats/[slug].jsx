@@ -34,7 +34,7 @@ export async function getServerSideProps(context) {
     try {
         const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
         if (!decodedToken) {
-            Cookies.destroy(context);
+            Cookies.destroy(context,'token');
             context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }
@@ -89,10 +89,19 @@ export async function getServerSideProps(context) {
           },
         };
       } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
-        context.res.end();
+        if(error.message="User does not have account or account data not up to date"){
+            context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
+            context.res.end();
+            return;
+        }
+
+        if(error instanceof FirebaseError){
+            // triggered if error is instance of firebase error
+            Cookies.destroy(context,'token');
+            context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
+            context.res.end();
+            return;
+        }
     }
 
     

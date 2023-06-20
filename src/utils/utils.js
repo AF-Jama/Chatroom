@@ -141,6 +141,23 @@ const showFriendUid = (uid,obj)=>{
     }
 }
 
+const showNumberOfRequests = async (uid)=>{
+    // method returns user number of friend requests
+    const userColRef = collection(db,'users'); // returns reference to root users collection
+    try{
+        let userDoc = doc(userColRef,uid); // returns reference to document in user collection
+
+        let requestColRef = collection(userDoc,'requests'); // returns reference to requests sub collection
+
+        const requestsDocs = await getDocs(requestColRef);
+
+        return requestsDocs.docs.length; // return number of request documents within request sub collection
+
+    }catch(error){
+        return 0;
+    }
+}
+
 
 
 export default HasEmailBeenRequestedOnceAlready;
@@ -149,5 +166,6 @@ export {
     areUsersFriends,
     showNumberOfFriends,
     showFriendUid,
-    showFriends
+    showFriends,
+    showNumberOfRequests
 }

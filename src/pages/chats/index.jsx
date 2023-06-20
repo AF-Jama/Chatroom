@@ -37,7 +37,7 @@ export async function getServerSideProps(context) {
     try {
         const decodedToken = await adminSDK.auth().verifyIdToken(cookies.token);
         if (!decodedToken) {
-            Cookies.destroy('token');
+            Cookies.destroy(context,'token');
             context.res.writeHead(302, { Location: '/' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }
@@ -118,6 +118,7 @@ export async function getServerSideProps(context) {
         if(error.message==="User does not have account or account data not up to date"){
             context.res.writeHead(302, { Location: '/createuser' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
+            return;
         }
     }
 
@@ -245,7 +246,9 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                     <Image src={unknownUser} alt="user"/>
 
                     <div id="profile-actions-container" style={{padding:"0 1rem"}}>
-                        <div className="actions">Show Profile</div>
+                        <Link href="/profile" style={{textDecoration:"none",color:"white"}}>
+                            <div className="actions">Show Profile</div>
+                        </Link>
                         <Link href='chats/requests' style={{textDecoration:"none",color:"#fff"}}>
                             <div className="account-information">Account Information</div>
                         </Link>

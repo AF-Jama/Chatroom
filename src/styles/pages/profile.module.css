@@ -1,5 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
 .main{
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    /* padding: 1rem; */
+    justify-content: center;
+    background-color: #e8f4f8;
+}
+
+.main>div{
+    width: 90%;
+    margin: 0 auto;
+    max-width: 400px;
+    min-height: 450px;
+    border-bottom: 8px solid blue;
+    text-align: center;
+    padding: 1rem 0;
+    border-radius: 40px;
+    box-shadow: 0 4px 12px 0 rgba(0,0,0,0.6);
+    transition: ease-in-out 1s;
+}
+
+
+.main>div:hover{
+    box-shadow: 0 4px 20px 0 rgba(0,0,0,0.8);
+}
+
+.main>div>img{
+    max-width: 100%;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+.main>div>h3{
+    font-family: 'Roboto', sans-serif;
+}
+
+.profile-info-container{
+    display: flex;
+    flex-direction: row;
+}
+
+.info-card{
+    flex: 1;
+    /* border: 2px solid red; */
+    padding: 1rem;
+}
+
+.info-card>p{
+    font-family: 'Open Sans', sans-serif;
+    /* color: white; */
 }
