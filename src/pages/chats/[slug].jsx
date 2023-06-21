@@ -192,9 +192,8 @@ const Chat = ({ chatData, chatId, uid })=>{
                             <p key={element.id} style={(element.userId===uid)?{backgroundColor:"#218aff",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}:{backgroundColor:"#39ff5a",padding:"0.5rem",borderRadius:"10px",width:"90%",maxWidth:"500px"}}>{element.message}</p>
                         ))}
                     </div>
-                    <ChatBar onMessageChange={onMessageChange} inputContainerRef={inputContainerRef} onSubmit={onSubmit}/>
                 </div>
-
+                <ChatBar onMessageChange={onMessageChange} inputContainerRef={inputContainerRef} onSubmit={onSubmit}/>
             </div>
         </div>
     )

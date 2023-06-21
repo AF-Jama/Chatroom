@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Epilogue&display=swap');
 
+/* html,body{
+    margin: 0;
+    padding: 0;
+} */
+
 .chat-container{
     min-height: 100vh;
     display: flex;
@@ -8,17 +13,22 @@
 }
 
 .inner-container{
+    display: flex;
+    flex-direction: column;
     flex: 1;
 }
 
 .user-messages-container{
-    height: calc(100vh - 75px);
+    height: calc(100vh - 70px);
     overflow-y: scroll;
+    /* background-color: blue; */
 }
 
-.message-container{
-    display: flex;
-    flex-direction: column;
+.messages-container{
+    /* display: flex;
+    flex-direction: column; */
+    flex: 1;
+    /* background-color: red; */
 }
 
 .user-messages-container>p{

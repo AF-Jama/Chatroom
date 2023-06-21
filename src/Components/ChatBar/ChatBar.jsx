@@ -1,4 +1,6 @@
 import React,{useState,useEffect,useReducer} from "react";
+import sendLogo from '../../assets/images/send.svg';
+import Image from "next/image";
 import styles from '../../styles/components/chatbar.module.css';
 
 const ChatBar = ({ onMessageChange, onSubmit, inputContainerRef })=>{
@@ -14,7 +16,8 @@ const ChatBar = ({ onMessageChange, onSubmit, inputContainerRef })=>{
             </div>
 
             <div id="submit-btn" className={styles['submit-btn-container']}>
-                <button onClick={onSubmit}>Send</button>
+                {/* <button onClick={onSubmit}>Send</button> */}
+                <Image src={sendLogo} onClick={onSubmit}/>
             </div>
         </div>
     )
