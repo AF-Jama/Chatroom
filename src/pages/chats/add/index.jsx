@@ -165,7 +165,7 @@ const AddPage = ({ uid, email })=>{
         ))
 
         return ()=>unsubscribe();
-    },[requestSenderSubCollection])
+    },[]);
 
 
     useEffect(()=>{

@@ -52,6 +52,8 @@ export async function getServerSideProps(context) {
 
         let userDocument = await getDoc(userDocumentReference); // returns user document
 
+        const { first_name, last_name } = userDocument.data(); // destructures user document data
+
         if(!areAllValuesNotNull(userDocument.data())) throw new Error("User does not have account or account data not up to date");
 
         // const friendColRef = collection(db,'friends'); // reference to friends collection
@@ -101,6 +103,7 @@ export async function getServerSideProps(context) {
             test:"SUCCESFULLas",
             decoded: decodedToken,
             chatData:chatData.sort((a,b)=>b.timestamp - a.timestamp),
+            name:`${first_name} ${last_name}`,
             messageData:{} // message data object
           },
         };
@@ -126,7 +129,7 @@ export async function getServerSideProps(context) {
 } //
 
 
-const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
+const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData, name })=>{
     const { isAuthenticated,hasDetails,onSignout, state:{user} } = useAuth();
     const [messageText,setMessageText] = useState('');
     const router = useRouter();
@@ -148,6 +151,8 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
         console.log(event.target.value);
         setMessageText(event.target.value);
     }
+
+    console.log(chatDataState);
 
     
     
@@ -221,7 +226,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
             unsubscribeArray.forEach(unsubscribe=>unsubscribe());
         }
 
-    },[uid]);    // side effect runs on initial render (on mount) and on dependecy array change
+    },[]);    // side effect runs on initial render (on mount) and on dependecy array change
 
 
 
@@ -253,7 +258,7 @@ const ChatDashboard = ({ uid,isLoggedIn, test, decoded,chatData })=>{
                             <div className="account-information">Account Information</div>
                         </Link>
                         <div className="actions" onClick={onSignout}>Logout</div>
-                        <div>{user?.displayName}</div>
+                        <div>{name}</div>
                     </div>
                 </div>
             </div>

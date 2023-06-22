@@ -146,13 +146,15 @@ const Chat = ({ chatData, chatId, uid })=>{
 
     }
 
-    chatDataState.sort((a,b)=>a.timestamp-b.timestamp);
+    // chatDataState.sort((a,b)=>a.timestamp-b.timestamp);
 
     const chatCol = collection(db,`friends/${chatId}/chat`); // references chat sub collection
 
     const scrollToBottom = () => {
         scrollMessageContainer.current.scrollTop = scrollMessageContainer.current.scrollHeight;
       };
+
+    // console.log(chatDataState);
 
 
     useEffect(()=>{
@@ -167,7 +169,9 @@ const Chat = ({ chatData, chatId, uid })=>{
                 })
             }
 
-            setChatData(chat); //  set chat data
+            setChatData(chat.sort((a,b)=>a.timestamp-b.timestamp)); //  set chat data
+
+            console.log(chatDataState);
 
             scrollMessageContainer.current.addEventListener('DOMNodeInserted', event => {
                 const { currentTarget: target } = event;
@@ -179,7 +183,7 @@ const Chat = ({ chatData, chatId, uid })=>{
 
 
         return ()=>unsubscribe();
-    },[chatCol])
+    },[]);
 
 
     return (
