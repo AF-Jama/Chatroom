@@ -63,8 +63,31 @@ const SignUpPageContainer = ({ isLoggedIn,result2 })=>{
 
             let result = await onProviderPopUpSignUp(provider);
 
+            
+
         }catch(error){
             console.log(error);
+            return;
+        }
+    }
+
+    const onHandleGithubSignIn = async ()=>{
+        const provider = new GithubAuthProvider();
+
+        try{
+
+            let result = await onProviderPopUpSignUp(provider);
+
+            const token = GithubAuthProvider.credentialFromResult(result).accessToken; // returns user access token
+
+
+            setCookie(null,'token',token,{
+                maxAge:"3600"
+            }) // sets id token
+
+            window.location.href = "/chats"; // redirects to chats endpoint
+
+        }catch(error){
             return;
         }
     }

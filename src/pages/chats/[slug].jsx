@@ -9,6 +9,7 @@ import { signOut } from "@firebase/auth";
 import { showFriendUid } from "@/utils/utils";
 import db from "@/Config/firebase.config";
 import styles from '../../styles/pages/chat.slug.module.css';
+import global from '../../styles/global.module.css';
 import unknownUser from '../../assets/images/unknown-user.svg';
 import useAuth from "@/customHooks/useAuth";
 import { Timestamp, addDoc, collection, doc, getDoc, getDocs, onSnapshot, query } from "@firebase/firestore";
@@ -55,10 +56,16 @@ export async function getServerSideProps(context) {
 
         const friendDoc = await getDoc(friendDocRef); // returns friend document
 
-        if(!showFriendUid(uid,friendDoc.data())){
+        const friendUid = showFriendUid(uid,friendDoc.data());
+
+        if(!friendUid){
             context.res.writeHead(302, { Location: '/chats' }); // redirect to /chats endpoint if token evaluates to true 
             context.res.end();
         }
+
+        const friendDataDoc = await getDoc(doc(userRef,friendUid));
+
+        const { first_name:friend_first_name, last_name:friend_last_name, email:friend_email } = friendDataDoc.data(); // destructures friends document data
 
         const chatColRef = collection(friendDocRef,'chat'); // returns collection reference to sub collection within friend document
 
@@ -85,6 +92,8 @@ export async function getServerSideProps(context) {
             email:email,
             chatData: data, 
             chatId:slug,
+            username: `${friend_first_name} ${friend_last_name}`,
+            friendEmail:friend_email,
             messageData:{} // message data object
           },
         };
@@ -109,7 +118,7 @@ export async function getServerSideProps(context) {
 
 
 
-const Chat = ({ chatData, chatId, uid })=>{
+const Chat = ({ chatData, chatId, uid, username, friendEmail })=>{
 
     const { user,onSignout } = useAuth();
     const scrollMessageContainer = useRef();
@@ -189,6 +198,10 @@ const Chat = ({ chatData, chatId, uid })=>{
     return (
         <div id="chat-main-container" className={styles['chat-container']}>
             <div className={styles['inner-container']}>
+                <div style={{padding:"0 0.5rem"}}>
+                    <p className={global['p-tag']}>{username}</p>
+                    <p className={global['p-tag']} style={{fontSize:"0.9rem"}}>{friendEmail}</p>
+                </div>
                 <div className={styles['messages-container']}>
                     <div id="user-messages-container" className={styles['user-messages-container']} ref={scrollMessageContainer}>
                         {(chatDataState.length===0) && <p>Add your first message</p>}

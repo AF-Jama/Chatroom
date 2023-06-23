@@ -24,6 +24,7 @@
     overflow-y: auto; /* Enable vertical scrolling */
     height: calc(100vh - 30px); /* Set the desired height */
     /* border: 2px solid red; */
+    padding: 0 0.5rem;
     background-color: #f8f8f8;
 }
 

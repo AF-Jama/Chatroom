@@ -19,7 +19,7 @@
 }
 
 .user-messages-container{
-    height: calc(100vh - 70px);
+    height: calc(100vh - 150px);
     overflow-y: scroll;
     /* background-color: blue; */
 }
@@ -35,4 +35,8 @@
     color: #000;
     font-size: 1.2rem;
     font-family: 'Epilogue', sans-serif;
+}
+
+.message-profile{
+    padding: 0.5rem;
 }
