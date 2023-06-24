@@ -190,16 +190,20 @@ const Chat = ({ chatData, chatId, uid, username, friendEmail })=>{
 
         });
 
+        scrollMessageContainer.current.scrollTop = scrollMessageContainer.current.scrollHeight;
 
         return ()=>unsubscribe();
     },[]);
+
+
+    // scrollMessageContainer.current.scrollTop = scrollMessageContainer
 
 
     return (
         <div id="chat-main-container" className={styles['chat-container']}>
             <div className={styles['inner-container']}>
                 <div style={{padding:"0 0.5rem"}}>
-                    <p className={global['p-tag']}>{username}</p>
+                    <p className={global['p-tag']} style={{fontWeight:"bold"}}>{username}</p>
                     <p className={global['p-tag']} style={{fontSize:"0.9rem"}}>{friendEmail}</p>
                 </div>
                 <div className={styles['messages-container']}>

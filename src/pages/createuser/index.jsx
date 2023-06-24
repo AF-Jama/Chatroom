@@ -159,7 +159,9 @@ const UserInfoForm = ({ user, email })=>{
                         </select>
                     </div>
 
-                    <input type="submit" onClick={onSubmit} />
+                    <div className={styles['input-group']}>
+                        <input className={styles['submit-btn']} type="submit" onClick={onSubmit}/>
+                    </div>
                 </form>
             </div>
         </div>
