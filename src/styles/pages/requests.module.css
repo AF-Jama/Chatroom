@@ -39,20 +39,21 @@
 }
 
 .request-btn-container>button{
-    border-radius: 100%;
+    /* border-radius: 100%; */
     border: 0;
     outline: 0;
-    padding: 0.5rem;
+    padding: 0.6rem;
     margin: 0 0.5rem;
     font-size: 1.1rem;
+    border-radius: 5px;
 }
 
 .request-btns-outer-container>div:first-child>button{
-    background-color: green;
+    background-color: #405DE6;
 }
 
 .request-btns-outer-container>div:nth-child(2)>button{
-    background-color: red;
+    background-color: lightgrey;
 }
 
 

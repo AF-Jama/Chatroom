@@ -158,10 +158,10 @@ const RequestsPage = ({ uid, email })=>{
 
                                 <div className={styles['request-btns-outer-container']}>
                                     <div className={styles['request-btn-container']}>
-                                        <button onClick={(event)=>onAcceptClick(event,element.uid,element.id)}>✓</button>
+                                        <button onClick={(event)=>onAcceptClick(event,element.uid,element.id)}>Accept</button>
                                     </div>
                                     <div className={styles['request-btn-container']}>
-                                        <button onClick={(event)=>onDeclineClick(event,element.id)}>☓</button>
+                                        <button onClick={(event)=>onDeclineClick(event,element.id)}>Reject</button>
                                     </div>
                                 </div>
                             </div>
