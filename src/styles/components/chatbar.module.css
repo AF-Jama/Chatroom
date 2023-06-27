@@ -5,6 +5,7 @@
     flex-direction: row;
     align-items: center;
     background-color: #fff;
+    padding: 0 0.5rem;
 }
 
 .chat-bar-input{

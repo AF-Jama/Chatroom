@@ -134,7 +134,7 @@ const RequestsPage = ({ uid, email })=>{
 
 
         return ()=>unsubscribe();
-    },[requestSubCollection])
+    },[]);
 
 
 

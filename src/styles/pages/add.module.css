@@ -57,6 +57,9 @@
         display: block;
         /* background-color: red; */
         /* box-shadow: 0; */
+        height: auto;
+        width: auto;
+        background-color: transparent;
         padding: 1rem;
         border-right: 2px solid black;
     }
