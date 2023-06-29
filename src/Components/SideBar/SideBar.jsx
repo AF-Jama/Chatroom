@@ -42,7 +42,7 @@ const SideBar = ({ showState, numberOfRequests,uid,email })=>{
 
 
         return ()=>unsubscribe();
-    },[friendsCol,uid])
+    },[]);
 
 
     return (

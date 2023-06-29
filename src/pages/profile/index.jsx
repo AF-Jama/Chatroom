@@ -1,14 +1,21 @@
 import React,{useState,useEffect,useReducer} from "react";
 import styles from '../../styles/pages/profile.module.css';
+import global from '../../styles/global.module.css';
 import db from "@/Config/firebase.config";
-import { doc,getDoc,getDocs,collection } from "@firebase/firestore";
-import { showFriends, showNumberOfRequests } from "@/utils/utils";
+import { doc,getDoc,getDocs,collection, onSnapshot } from "@firebase/firestore";
+import { storage } from "@/Config/firebase.config";
+import { getDownloadURL, ref, uploadBytes, UploadTask } from "@firebase/storage";
+import { showFriends, showNumberOfRequests, getImageURL } from "@/utils/utils";
 import { adminSDK } from "@/Config/firebaseAdmin";
 import person from '../../assets/images/person.jpg';
+import unknownUser from '../../assets/images/unknown-user.svg';
+import add from '../../assets/images/add-plus.svg';
 import Cookies from 'nookies';
 import { setCookie } from "nookies";
 import { destroyCookie } from "nookies";
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import useAuth from "@/customHooks/useAuth";
 
 function areAllValuesNotNull(obj) {
@@ -72,6 +79,14 @@ export async function getServerSideProps(context){
 
         const { first_name, last_name, age, occupation } = userDoc.data(); // destructures user document data object
 
+        const imageRef = ref(storage,`profiles/${uid}.png`); // reference to images directory
+
+        const imageUrl = await getImageURL(imageRef);
+
+        console.log("IMAGE URL:");
+        console.log(imageUrl)
+
+
 
         return {
             props:{
@@ -81,7 +96,9 @@ export async function getServerSideProps(context){
                 occupation:occupation,
                 numberOfFriends:numberOfFriends,
                 numberOfRequests:numberOfRequests,
-                numberOfChats:numberOfChats
+                numberOfChats:numberOfChats,
+                uid:uid,
+                image: (imageUrl?imageUrl:'')
             }
         }
 
@@ -105,17 +122,101 @@ export async function getServerSideProps(context){
 }
 
 
-const Profile = ({ first_name, last_name, age, occupation, uid, numberOfFriends, numberOfRequests, numberOfChats })=>{
+const Profile = ({ first_name, last_name, age, occupation, uid, numberOfFriends, numberOfRequests, numberOfChats, image })=>{
     const { onSignout } = useAuth();
+    const [imageUrl, setImageUrl] = useState(image); // set image url state
+    const [file,setFile] = useState(null); // set file state
+    const [progression,setProgression] = useState(null); // set upload progression state
+    const [status,setStatus] = useState(''); // set status state
 
+    const router = useRouter();
+
+
+    // useEffect(()=>{
+    //     const userColRef = collection(db,'users'); // returns reference to user collection
+
+    //     const unsubscribe = onSnapshot(doc(userColRef,uid),(snapshot)=>{
+    //         const { imageUrl } = snapshot.data(); // destructure data object
+
+    //         setImageUrl(imageUrl);
+    //     })
+
+
+    //     return ()=>unsubscribe();
+
+    // },[])
+
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+
+        console.log(file.name);
+
+    }
+
+    const uploadImage = async (event)=>{
+        if(!file) return;
+
+        console.log(file.name);
+
+        try{
+            let bool = ['png','jpeg','jpg'].includes(file.name.split('.')[1]); // returns bool if file contains png or jpeg filename ext
+
+            if(!bool) throw Error;
+
+            const imageRef = ref(storage,`profiles/${uid}.png`); // reference to images directory
+        
+            await uploadBytes(imageRef, file ); 
+
+            let url = await getDownloadURL(imageRef);
+
+            setImageUrl(url);
+
+            setStatus("Profile  Updated");
+            setFile('');
+        }catch(error){
+            setStatus('Error updating display photo');
+            setFile('');
+            console.log(error);
+            return;
+        }
+
+    }
+
+
+    useEffect(()=>{
+        if(status){
+            setTimeout(()=>{
+                setStatus('');
+            },3000)
+        }
+    },[status])
 
 
     return (
         <div className={styles.main}>
             <div id="profile-container" className={styles['profile-container']}>
-                <Image src={person}/>
-                <h3>{first_name.toUpperCase()} {last_name.toUpperCase()}</h3>
-                <h3>{occupation.toUpperCase()}</h3>
+                <div id="image-container" className={styles['img-container']}>
+                        {imageUrl?<Image src={imageUrl} width={120} height={150} style={{objectFit:"cover"}} alt="a"/>:<Image src={unknownUser} alt="a"/>}
+                        <label for="image">
+                            <input type="file" name="image" id="image" style={{display:"none"}} onChange={(event)=>setFile(event.target.files[0])}/>
+                            <Image src={add}/>
+                        </label>
+
+                        {status && <p className={global['p-tag']}>{status}</p>}
+
+                        {file
+                        &&
+
+                        <div>
+                            <button type="submit" onClick={uploadImage}>Upload</button>
+                            <p className={global['p-tag']}>{file.name}</p>
+                        </div>
+                        }
+                </div>
+
+                <h3>{first_name} {last_name}</h3>
+                <h3>{occupation}</h3>
                 <div className={styles['profile-info-container']}>
                     <div className={styles['info-card']}>
                         <p>Friends</p>
@@ -130,6 +231,11 @@ const Profile = ({ first_name, last_name, age, occupation, uid, numberOfFriends,
                         <h3>{numberOfRequests}</h3>
                     </div>
                 </div>
+            </div>
+
+
+            <div id="back-container" className={styles['back-container']} onClick={(event)=>router.push('/chats')}>
+                <h3>Back to Chats</h3>
             </div>
         </div>
     )

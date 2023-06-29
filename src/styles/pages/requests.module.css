@@ -68,6 +68,8 @@
     .requests-main-page>div:first-child{
         position: relative;
         display: block;
+        width: auto;
+        background-color: #fff;
         /* background-color: red; */
         /* box-shadow: 0; */
         padding: 1rem;

@@ -1,6 +1,8 @@
 import db,{ auth } from "@/Config/firebase.config";
 import { collection, where } from "@firebase/firestore";
 import { doc, getDoc,setDoc,addDoc,query,getDocs } from "@firebase/firestore";
+import { storage } from "@/Config/firebase.config";
+import { ref, getDownloadURL } from "@firebase/storage";
 
 
 
@@ -158,6 +160,16 @@ const showNumberOfRequests = async (uid)=>{
     }
 }
 
+async function getImageURL(imageRef) {
+    try {
+      const imageUrl = await getDownloadURL(imageRef);
+      return imageUrl;
+    } catch (error) {
+      console.error('Error retrieving image URL:', error);
+      return null; // returns null if try block triggers error
+    }
+}
+
 
 
 export default HasEmailBeenRequestedOnceAlready;
@@ -167,5 +179,6 @@ export {
     showNumberOfFriends,
     showFriendUid,
     showFriends,
-    showNumberOfRequests
+    showNumberOfRequests,
+    getImageURL
 }
